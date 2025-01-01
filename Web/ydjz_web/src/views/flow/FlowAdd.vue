@@ -164,7 +164,8 @@
             <template #default>
               <div class="template-container" @click="fastChooseClick(template)">
                 <div class="template-info">
-                  <div class="template-name">{{ template.name }}</div>
+                  <div class="template-name">{{ template.name  }}</div>
+                  <div v-if="template.note" class="template-name">{{ template.note  }}</div>
                   <van-tag v-if="template.tag" :color="template.tag.color">{{ template.tag.name }}</van-tag>
                 </div>
                 <div class="template-action">
@@ -187,6 +188,7 @@
       <van-cell-group :border="false" v-model="chooseTemplate.show">
 
         <van-cell v-if="chooseTemplate.money" title="金额" :value="chooseTemplate.money"/>
+        
         <van-cell v-if="chooseTemplate.actionId" title="收支">
           <template #default>
             <van-tag plain :type="chooseTemplate.action.style">{{ chooseTemplate.action.hname }}</van-tag>
@@ -197,6 +199,7 @@
         <van-cell v-if="chooseTemplate.typeId" title="分类选择" :value="chooseTemplate.type.tname"/>
         <van-cell v-if="chooseTemplate.dateTypeStr" title="日期类型"
                   :value="chooseTemplate.dateTypeStr==='1'?'补上月':'记本月'"/>
+        <van-cell v-if="chooseTemplate.note" title="备注" :value="chooseTemplate.note"/>
         <van-cell title="标签" name="1">
           <template #default>
             <div style="display: flex; justify-content: flex-end;">
@@ -260,7 +263,7 @@ export default {
       chooseType: {},
       allTypes: [],
 
-      chooseDate: "",
+      chooseDate: this.formatDate(new Date()),
 
       isCollect: false,
 
@@ -286,6 +289,7 @@ export default {
       this.getAllTags()
     }
     this.doGetActions()
+    this.doGetAction('16')//已选择的action
     this.doGetAccounts()
   },
   methods: {
@@ -294,6 +298,7 @@ export default {
       this.fastDialogShow = false;
       this.$toast.success(template.name);
       this.money = template.money;
+      this.note = template.note;
       this.chooseAccount = template.account;
       if (template.action != null) {
         this.chooseAction = this.setActionStyle(template.action);
@@ -598,7 +603,20 @@ export default {
           })
     },
 
+    doGetAction(id) {
+      request({
+        url: "/action/getAction/" + id,
+        method: "get",
+      })
+          .then((response) => {
+            //this.chooseAction = response.data.data;
+            this.onChooseAction(response.data.data)
+            console.log(this.allTypes)
+          })
+    },
+
     onChooseAction(action) {
+      this.setActionStyle(action);
       this.actionShow = false;
       if (action === this.chooseAction) {
         return

@@ -34,11 +34,21 @@
         required
         placeholder="请输入账户余额"
       />
+       <van-field name="radio" v-if="this.$route.query.accountId != null" label="是否生成流水">
+              <template #input>
+                <van-radio-group v-model="isFlow" direction="vertical">
+                  <van-radio name="0">是</van-radio>
+                  <van-radio style="margin-top: 10px" name="1"
+                    >否</van-radio
+                  >
+                </van-radio-group>
+              </template>
+       </van-field>
       <van-field
         v-model="exempt"
         type="number"
-        label="豁免金额"
-        placeholder="请输入账户余额中不计入总金额的钱数"
+        label="信用额度"
+        placeholder="请输入账户余额中不计入总金额的金额（如信用卡额度）"
       />
       <van-field v-model="card" label="银行卡号" placeholder="请输入银行卡号" />
 
@@ -66,6 +76,7 @@ export default {
   data() {
     return {
       aName: "",
+      isFlow:"0",
       card: "",
       money: "",
       exempt: "",
@@ -142,6 +153,7 @@ export default {
         method:"put",
         data: {
           name: this.aName,
+          isFlow: this.isFlow,
           money: this.money,
           card: this.card,
           exemptMoney: this.exempt,
@@ -170,10 +182,10 @@ export default {
         Toast.fail("初始金额为空");
         return;
       }
-      if (parseInt(this.exempt)>parseInt(this.money)){
-        Toast.fail("不计入总金额钱数不得大于账户余额")
-        return
-      }
+      //if (parseInt(this.exempt)>parseInt(this.money)){
+        //Toast.fail("不计入总金额钱数不得大于账户余额")
+        //return
+      //}
       if (this.$route.query.accountId != null) {
         this.doUpdate();
       } else {

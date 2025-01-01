@@ -9,6 +9,7 @@ public class HomeDto {
 
     private String totalAsset;
     private String netAsset;
+    private String cardAsset;//信用卡账单
     private String curIncome;
     private String curOutCome;
     //年度收入

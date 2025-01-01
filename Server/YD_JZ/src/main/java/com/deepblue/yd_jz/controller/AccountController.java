@@ -28,7 +28,7 @@ public class AccountController {
 
     @ApiOperation(value = "更新账户")
     @PutMapping("/updateAccount/{id}")
-    public BaseDto updateAccount(@PathVariable int id, @RequestBody AccountRequestDto accountRequestDto) {
+    public BaseDto updateAccount(@PathVariable int id, @RequestBody AccountRequestDto accountRequestDto) throws Exception{
         accountService.updateAccount(id, accountRequestDto);
 
         return BaseDto.setSuccessBean();

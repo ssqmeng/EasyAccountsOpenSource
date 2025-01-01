@@ -66,25 +66,26 @@
           ">
             {{ flow.fdate }}
           </div>
-          <van-cell
-              size="large"
-              :title="flow.tname"
-              :value="'￥' + flow.money"
-              :label="flow.aname"
-          >
+         
+
+          <van-cell size="small" :title="flow.tname" :value="'￥' + flow.money" :label="flow.aname">
+            <template #label>
+              <div>
+                <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
+                <label v-if=" flow.note && flow.note.length > 0"
+                  style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
+                    "备注：" + flow.note
+                  }}</label>
+              </div>
+            </template>
             <template #default>
-              <div style="color: #000; font-size: 19px">￥{{ flow.money }}</div>
+              <div style="color: #000; font-size: 16px">￥{{ flow.money }}</div>
               <van-tag :type="flow.tagStyle">{{ flow.hname }}</van-tag>
-              <van-tag
-                  v-show="flow.exempt"
-                  style="margin-left: 10px"
-                  color="gray"
-                  plain
-                  type="action.style"
-              >不计入总金额
+              <van-tag v-show="flow.exempt" style="margin-left: 10px" color="gray" plain type="action.style">不计入总金额
               </van-tag>
             </template>
           </van-cell>
+          
           <div style="height: 1px"></div>
 
           <template #right>

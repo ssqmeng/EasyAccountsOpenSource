@@ -1,6 +1,7 @@
 package com.deepblue.yd_jz.service;
 
 import com.deepblue.yd_jz.dto.AccountResponseDto;
+import com.deepblue.yd_jz.dto.FlowAddRequestDto;
 import com.deepblue.yd_jz.entity.Account;
 import com.deepblue.yd_jz.dto.AccountRequestDto;
 import com.deepblue.yd_jz.dao.jpa.AccountRepository;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +23,9 @@ public class AccountService {
     private AccountRepository accountRepository;
     @Autowired
     private FlowTemplateService flowTemplateService;
+
+    @Autowired
+    private FlowService flowService;
 
     @Transactional(rollbackFor = Exception.class)
     public void addAccount(AccountRequestDto postBean) {
@@ -34,9 +40,34 @@ public class AccountService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateAccount(int id, AccountRequestDto postBean) {
+    public void updateAccount(int id, AccountRequestDto postBean) throws Exception {
         Account account = accountRepository.findById(id).orElse(null);
         if (account != null) {
+
+            //新增一条流水记录-start-20241224
+            if("0".equals(postBean.getIsFlow())) {//需要更新流水
+                BigDecimal oldMoney = new BigDecimal(account.getMoney());
+                BigDecimal money = new BigDecimal(postBean.getMoney());
+                BigDecimal flowMoney = money.subtract(oldMoney);
+                if (flowMoney.compareTo(BigDecimal.ZERO) != 0) {
+                    FlowAddRequestDto flowAddRequestDto = new FlowAddRequestDto();
+                    flowAddRequestDto.setAccountId(id);
+                    if (flowMoney.compareTo(BigDecimal.ZERO) > 0) {
+                        flowAddRequestDto.setActionId(15);//15-收入，16支出
+                        flowAddRequestDto.setMoney(flowMoney.toString());
+                    } else {
+                        flowAddRequestDto.setActionId(16);//15-收入，16支出
+                        flowAddRequestDto.setMoney(BigDecimal.ZERO.subtract(flowMoney).toString());
+                    }
+                    flowAddRequestDto.setTypeId(128);//余额调整
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    String fDate = sdf.format(new Date());
+                    flowAddRequestDto.setfDate(fDate);//流水日期
+
+                    flowService.doAddFlow(flowAddRequestDto);
+                }
+            }
+            //新增一条流水记录-end-20241224
             BeanUtils.copyProperties(postBean, account);
             account.setAName(postBean.getName());
             accountRepository.save(account);

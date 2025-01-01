@@ -1,8 +1,9 @@
 <template>
   <div>
     <van-nav-bar fixed placeholder title="总览" right-text="财务分析" @click-right=toAnalysis() />
-    <div style="height: 40px;margin-left: 20px;margin-top:15px;font-size: 20px">总资产： ￥{{this.homeInfo.totalAsset}}</div>
-    <div style="height: 30px;margin-left: 20px;font-size: 16px;color: #4e4e4e">净资产： ￥{{this.homeInfo.netAsset}}</div>
+    <div style="height: 40px;margin-left: 20px;margin-top:15px;font-size: 20px">净资产： ￥{{this.homeInfo.netAsset}}</div>
+    <div style="height: 30px;margin-left: 20px;font-size: 16px;color: #4e4e4e">资产： ￥{{this.homeInfo.totalAsset}}</div>
+    <div style="height: 30px;margin-left: 20px;font-size: 16px;color: #4e4e4e">负债： ￥{{this.homeInfo.cardAsset}}</div>
     <van-divider
         :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"
     > 当年收支情况
@@ -59,7 +60,8 @@ export default {
       this.$router.push({ path: "/analysis" });
     },
     toScreen(acid) {
-      this.$router.push({ path: "/screen", query: { acid: acid } });
+      //this.$router.push({ path: "/screen", query: { acid: acid } });
+      this.$router.push({ path: "/account/add", query: { accountId: acid } });
     },
     getHomeInfo() {
       request({
@@ -71,7 +73,9 @@ export default {
         this.homeInfo.accounts.map(account=>{
           if (account.exemptAsset!=''&&account.exemptAsset!=null){
             var fNum = parseFloat( account.accountAsset) - parseFloat(account.exemptAsset);
-              account.realAsset ='净资产 ￥ '+( fNum.toFixed(2))
+            account.realAsset ='可用额度 ￥ '+( account.accountAsset)
+            account.accountAsset = ( fNum.toFixed(2))
+            //account.realAsset ='可用额度 ￥ '+( fNum.toFixed(2))
           }else {
             account.realAsset=='';
           }

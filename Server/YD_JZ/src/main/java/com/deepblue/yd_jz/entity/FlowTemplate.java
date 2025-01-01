@@ -21,6 +21,9 @@ public class FlowTemplate {
     @Column(name = "money", nullable = true)
     private String money;
 
+    @Column(name = "note", nullable = true)
+    private String note;
+
     @Column(name = "type_id", nullable = true)
     private Integer typeId;
 

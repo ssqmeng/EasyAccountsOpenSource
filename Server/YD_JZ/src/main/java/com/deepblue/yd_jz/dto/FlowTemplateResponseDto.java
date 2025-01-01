@@ -14,6 +14,7 @@ public class FlowTemplateResponseDto {
     private String name;
     private Integer dateType;
     private String money;
+    private String note;
     private Integer typeId;
     private Integer actionId;
     private Integer accountId;
@@ -32,6 +33,7 @@ public class FlowTemplateResponseDto {
         flowTemplateResponseDto.setName(flowTemplate.getName());
         flowTemplateResponseDto.setDateType(flowTemplate.getDateType());
         flowTemplateResponseDto.setMoney(flowTemplate.getMoney());
+        flowTemplateResponseDto.setNote(flowTemplate.getNote());
         flowTemplateResponseDto.setTypeId(flowTemplate.getTypeId());
         flowTemplateResponseDto.setActionId(flowTemplate.getActionId());
         flowTemplateResponseDto.setAccountId(flowTemplate.getAccountId());

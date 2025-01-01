@@ -65,13 +65,13 @@ public class FlowService {
                 break;
             case ContentValues.ACTION_SUB:
                 if (accountMoney.compareTo(flowMoney) < 0) {
-                    throw new Exception("减少金额不允许大于账户金额");
+                    //throw new Exception("减少金额不允许大于账户金额");
                 }
                 account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
                 break;
             case ContentValues.ACTION_INNER:
                 if (accountMoney.compareTo(flowMoney) < 0) {
-                    throw new Exception("减少金额不允许大于账户金额");
+                    //throw new Exception("减少金额不允许大于账户金额");
                 }
                 toAccount = accountService.getOriginAccountById(flowAddRequestDto.getAccountToId());
                 toAccount = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), toAccount, action.isExempt());

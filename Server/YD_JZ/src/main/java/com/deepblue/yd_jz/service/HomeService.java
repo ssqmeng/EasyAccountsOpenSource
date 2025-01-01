@@ -33,6 +33,7 @@ public class HomeService {
         List<Account> accounts = accountDao.findByDisableFalse();
         BigDecimal totalAsset = new BigDecimal("0");
         BigDecimal exemptAsset = new BigDecimal("0");
+        BigDecimal cardAsset = new BigDecimal("0");//信用卡余额
         for (Account account : accounts) {
             BigDecimal accountAsset = new BigDecimal(account.getMoney());
             String exemptStr = account.getExemptMoney();
@@ -42,10 +43,15 @@ public class HomeService {
             BigDecimal exemptAccountAsset = new BigDecimal(exemptStr);
             totalAsset = totalAsset.add(accountAsset);
             exemptAsset = exemptAsset.add(exemptAccountAsset);
+            if(!"0".equals(exemptStr))
+            {
+                cardAsset=cardAsset.add(exemptAccountAsset).subtract(accountAsset);//信用卡账单=额度金额-额度余额
+            }
         }
         HomeDto homeDto = new HomeDto();
-        homeDto.setTotalAsset(totalAsset.toString());
+        homeDto.setTotalAsset(totalAsset.subtract(exemptAsset).add(cardAsset).toString());
         homeDto.setNetAsset(totalAsset.subtract(exemptAsset).toString());
+        homeDto.setCardAsset(cardAsset.toString());
         NumberFormat nf = NumberFormat.getPercentInstance();
         List<HomeDto.HomeAccountBean> homeAccounts = new ArrayList<>();
         for (Account account : accounts) {

@@ -8,7 +8,7 @@
     <van-cell icon="balance-list-o" title="分类" is-link to="/setting/type" />
     <van-cell icon="cluster-o" title="快记模板" is-link to="/setting/template" />
 
-    <!-- 新增 Powered by 区域 -->
+    <!-- 新增 Powered by 区域
     <div class="powered-by">
       <span>Powered by </span>
       <a href="https://github.com/QingHeYang/EasyAccounts" target="_blank">
@@ -16,6 +16,7 @@
         <span>QingHeYang</span>
       </a>
     </div>
+     -->
   </div>
 
 </template>

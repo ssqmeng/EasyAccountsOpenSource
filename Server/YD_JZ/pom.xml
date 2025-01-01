@@ -14,7 +14,7 @@
     <name>YD_JZ</name>
     <description>YD_JZ</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>8</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -161,6 +161,18 @@
             <artifactId>liquibase-core</artifactId>
             <version>4.29.0</version>
         </dependency>
+        <!-- 添加阿里云OSS SDK依赖 -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.6.0</version> <!-- 请使用最新版本 -->
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-dm</artifactId>
+            <version>3.1.0</version> <!-- 请使用最新版本 -->
+        </dependency>
+        <!-- 其他依赖 -->
 
     </dependencies>
 

@@ -1,73 +1,59 @@
 <template>
   <div>
     <!--  1.8版本 筛选功能  -->
-    <van-sticky :style="{background:'#FFFFFF'}">
+    <van-sticky :style="{ background: '#FFFFFF' }">
       <van-nav-bar fixed placeholder title="筛选" left-text="备注筛选" right-text="更多条件"
-                   @click-right="()=>{morePopupShow=true}"
-                   @click-left="onClickLeft"/>
+        @click-right="() => { morePopupShow = true }" @click-left="onClickLeft" />
       <!--   备注搜索 2.1.0版本   -->
-      <van-search
-          v-if="useNote"
-          v-model="note"
-          shape="round"
-          placeholder="请输入备注关键词"
-          @search="onNoteSearch"
-          show-action
-      >
+      <van-search v-if="useNote" v-model="note" shape="round" placeholder="请输入备注关键词" @search="onNoteSearch" show-action>
         <template #action>
           <div @click="onNoteSearch">搜索</div>
         </template>
       </van-search>
-      <div style="height: 1px;width: 100%;background: #F7F8FA"/>
+      <div style="height: 1px;width: 100%;background: #F7F8FA" />
     </van-sticky>
 
-    <van-divider
-        content-position="left"
-        :style="{background:'#FFF', color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"
-    > 快速切换
+    <van-divider content-position="left"
+      :style="{ background: '#FFF', color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 快速切换
     </van-divider>
     <van-radio-group v-model="fastChoose" style="background:#FFFFFF; padding-left: 15px;flex-wrap: wrap"
-                     direction="horizontal">
+      direction="horizontal">
       <van-radio name=0 @click="onFastDateChoose(fastChoose)">当月</van-radio>
       <van-radio name=1 @click="onFastDateChoose(fastChoose)">上月</van-radio>
       <van-radio name=2 @click="onFastDateChoose(fastChoose)">全年</van-radio>
       <van-radio name=3 @click="onFastDateChoose(fastChoose)">上年</van-radio>
     </van-radio-group>
-    <van-divider
-        :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"
-    > 当期收支情况
+    <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 当期收支情况
     </van-divider>
     <div style=" height:80px;background: #FFF;margin-left: 20px">
       <div style="margin-top: 10px; float: left">
-        <div v-show="this.totalIn!='0'">当期总收入： <span style="color: #42b983">￥{{
-            this.totalIn
-          }}</span></div>
-        <div v-show="this.totalOut!='0'">当期总支出： <span style="color: #f54949">￥{{
-            this.totalOut
-          }}</span></div>
+        <div v-show="this.totalIn != '0'">当期总收入： <span style="color: #42b983">￥{{
+          this.totalIn
+        }}</span></div>
+        <div v-show="this.totalOut != '0'">当期总支出： <span style="color: #f54949">￥{{
+          this.totalOut
+        }}</span></div>
         <div>当期结余： ￥{{ this.totalEarn }}</div>
-        <div v-show="this.handle==='2'">内部转账笔数： {{ this.flows.length }}</div>
+        <div v-show="this.handle === '2'">内部转账笔数： {{ this.flows.length }}</div>
       </div>
       <van-button type="default" round size="small" style=" float: right;margin-right: 20px" icon="gold-coin-o"
-                  @click="()=>{this.typeMoneyListShow = true}">
+        @click="() => { this.typeMoneyListShow = true }">
         查看分类明细
       </van-button>
     </div>
 
-    <van-divider
-        :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"
-    > 当期账单概览
+    <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 当期账单概览
     </van-divider>
     <van-cell-group :border="false">
       <div @click="toUpdateFlow(flow.id)" v-for="flow in flows" :key="flow.id">
         <van-swipe-cell>
           <template #left>
             <van-button size="small" square color="#8c8c8c" type="primary" class="delete-button"
-                        @click="doShowNote(flow)">
+              @click="doShowNote(flow)">
               {{ doGetNotString(flow) }}
             </van-button>
-
           </template>
+
           <div style="
             margin-left: 15px;
             margin-top: 5px;
@@ -75,17 +61,12 @@
             color: #4e4e4e;">
             {{ flow.fdate }}
           </div>
-          <van-cell
-              size="small"
-              :title="flow.tname"
-              :value="'￥' + flow.money"
-              :label="flow.aname"
-          >
+          <van-cell size="small" :title="flow.tname" :value="'￥' + flow.money" :label="flow.aname">
             <template #label>
               <div>
                 <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
-                <label v-if="useNote&&flow.note.length>0"
-                       style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
+                <label v-if="flow.note && flow.note.length > 0"
+                  style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
                     "备注：" + flow.note
                   }}</label>
               </div>
@@ -93,31 +74,28 @@
             <template #default>
               <div style="color: #000; font-size: 16px">￥{{ flow.money }}</div>
               <van-tag :type="flow.tagStyle">{{ flow.hname }}</van-tag>
-              <van-tag
-                  v-show="flow.exempt"
-                  style="margin-left: 10px"
-                  color="gray"
-                  plain
-                  type="action.style"
-              >不计入总金额
+              <van-tag v-show="flow.exempt" style="margin-left: 10px" color="gray" plain type="action.style">不计入总金额
               </van-tag>
             </template>
           </van-cell>
           <div style="height: 1px"></div>
+          <template #right>
+            <van-button v-if="flow.collect" square type="warning" class="delete-button" @click="doCollectFlow(flow)">
+              取消<br>收藏
+            </van-button>
+            <van-button v-else type="primary" color="#1989fa" class="delete-button" @click="doCollectFlow(flow)">收藏<br>账单
+            </van-button>
+            <van-button square text="删除" type="danger" class="delete-button" @click="doConfirmDeleteFlow(flow)"/>
+          </template>
         </van-swipe-cell>
       </div>
     </van-cell-group>
-    <van-empty v-show="flows.length==0" description="当期无账单"/>
+    <van-empty v-show="flows.length == 0" description="当期无账单" />
 
-    <van-popup
-        v-model="accountPopupShow"
-        round
-        position="bottom"
-        :style="{ height: '50%' }"
-    >
+    <van-popup v-model="accountPopupShow" round position="bottom" :style="{ height: '50%' }">
       <van-radio-group v-model="accountId">
         <van-cell-group inset v-for="account in this.allAccounts" :key="account.id">
-          <van-cell :title=account.name clickable @click="onAccountChecked(account.id,account.name)">
+          <van-cell :title=account.name clickable @click="onAccountChecked(account.id, account.name)">
             <template #right-icon>
               <van-radio :name=account.id></van-radio>
             </template>
@@ -127,145 +105,117 @@
 
     </van-popup>
 
-    <van-popup
-        v-model="morePopupShow"
-        position="top"
-        :style="{ width: '100%',height: '100%' ,background:'#F7F8FA' }"
-    >
-      <van-nav-bar fixed placeholder title="详细筛选条件" left-arrow right-text="筛选"
-                   @click-right="onDetailScreenChoose">
+    <van-popup v-model="morePopupShow" position="top" :style="{ width: '100%', height: '100%', background: '#F7F8FA' }">
+      <van-nav-bar fixed placeholder title="详细筛选条件" left-arrow right-text="筛选" @click-right="onDetailScreenChoose">
         <template #left>
-          <van-icon name="cross" size="18" @click="()=>{morePopupShow = false}"/>
+          <van-icon name="cross" size="18" @click="() => { morePopupShow = false }" />
         </template>
       </van-nav-bar>
-      <van-divider :style="{ color: '#1989fa',}" content-position="left">账户选择</van-divider>
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">账户选择</van-divider>
 
       <!--   账户选择   -->
       <van-cell-group :border="false" inset>
         <van-cell title="当前账户">
-          <van-button type="default" round size="small" style=" float: right;margin-right: 20px"
-                      icon="balance-o"
-                      @click="()=>{accountPopupShow=true}">
+          <van-button type="default" round size="small" style=" float: right;margin-right: 20px" icon="balance-o"
+            @click="() => { accountPopupShow = true }">
             {{ this.accountName }}
           </van-button>
         </van-cell>
       </van-cell-group>
-      <van-divider :style="{ color: '#1989fa',}" content-position="left">时间选择</van-divider>
+
+      <!--资金分类-->
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">资金分类</van-divider>
+
+      <van-tree-select :style="{ margin: '15px' }" :items="allTypes" :active-id.sync="chooseTypes"
+        :main-active-index.sync="activeIndex" @click-item="onTypesClick" />
+
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">时间选择</van-divider>
       <!--   时间选择   -->
       <van-cell-group inset :border="false">
 
         <van-cell title="开始时间">
-          <van-button type="default" round size="small" style=" float: right;"
-                      icon="clock-o"
-                      @click="()=>{showTimeDatePicker = true;setStartDate = true}">
+          <van-button type="default" round size="small" style=" float: right;" icon="clock-o"
+            @click="() => { showTimeDatePicker = true; setStartDate = true }">
             {{ startDate }}
           </van-button>
         </van-cell>
         <van-cell title="结束时间">
-          <van-button type="default" round size="small" style=" float: right;"
-                      icon="clock-o"
-                      @click="()=>{showTimeDatePicker = true;setStartDate = false}">
+          <van-button type="default" round size="small" style=" float: right;" icon="clock-o"
+            @click="() => { showTimeDatePicker = true; setStartDate = false }">
             {{ endDate }}
           </van-button>
         </van-cell>
         <van-cell title="是否整月">
           <template #right-icon>
-            <van-switch v-model="singleMonth" @click="fastChoose=-1" size="24px"/>
+            <van-switch v-model="singleMonth" @click="fastChoose = -1" size="24px" />
           </template>
         </van-cell>
         <van-cell title="筛选收藏">
           <template #right-icon>
-            <van-switch v-model="collect" size="24px"/>
+            <van-switch v-model="collect" size="24px" />
           </template>
         </van-cell>
 
       </van-cell-group>
 
-      <van-divider :style="{ color: '#1989fa',}" content-position="left">资金流向</van-divider>
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">资金流向</van-divider>
       <van-cell-group inset :border="false">
 
         <van-radio-group v-model="handle">
           <van-cell-group :border="false" style="background: #9e9e9e">
             <van-cell title="全部">
               <template #right-icon>
-                <van-radio name='3'/>
+                <van-radio name='3' />
               </template>
             </van-cell>
             <van-cell title="只看流入">
               <template #right-icon>
-                <van-radio name='0'/>
+                <van-radio name='0' />
               </template>
             </van-cell>
             <van-cell title="只看流出">
               <template #right-icon>
-                <van-radio name='1'/>
+                <van-radio name='1' />
               </template>
             </van-cell>
             <van-cell title="只看内部转账">
               <template #right-icon>
-                <van-radio name='2'/>
+                <van-radio name='2' />
               </template>
             </van-cell>
           </van-cell-group>
         </van-radio-group>
 
       </van-cell-group>
-      <van-divider :style="{ color: '#1989fa',}" content-position="left">操作选择</van-divider>
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">操作选择</van-divider>
 
       <van-cell-group inset :border="false">
 
-        <van-checkbox-group v-model="chooseActions"
-                            direction="horizontal">
+        <van-checkbox-group v-model="chooseActions" direction="horizontal">
           <van-cell name="handleRg" v-for="action in allActions" :key="action.id" :title=action.hname>
             <template #right-icon>
-              <van-checkbox :name="action.id" shape="square"/>
+              <van-checkbox :name="action.id" shape="square" />
             </template>
           </van-cell>
         </van-checkbox-group>
 
       </van-cell-group>
 
-      <van-divider :style="{ color: '#1989fa',}" content-position="left">资金分类</van-divider>
 
-      <van-tree-select
-          :style="{margin:'15px'}"
-          :items="allTypes"
-          :active-id.sync="chooseTypes"
-          :main-active-index.sync="activeIndex"
-          @click-item="onTypesClick"
-      />
       <div style="margin-left: 15px;margin-right: 15px;margin-bottom:20px;border-radius: 8px">
-        <van-button type="info" style="margin-top: 5px" size="large" @click="()=>{excelDialogShow=true}">生成EXCEL
+        <van-button type="info" style="margin-top: 5px" size="large" @click="() => { excelDialogShow = true }">生成EXCEL
         </van-button>
 
       </div>
     </van-popup>
 
-    <van-popup v-model="showTimeDatePicker" close-on-click-overlay  round position="bottom" :style="{height:'60%'}" @click-overlay="showTimeDatePicker = false">
-      <van-datetime-picker
-          v-if="setStartDate"
-          show-toolbar
-          title="选择开始日期"
-          type="date"
-          v-model="currentTime"
-          :min-date="minDate"
-          :max-date="maxDate"
-          :formatter="formatter"
-          @cancel="showTimeDatePicker = false"
-          @confirm="onDatePickerClick"
-      />
-      <van-datetime-picker
-          v-else
-          show-toolbar
-          title="选择结束"
-          type="date"
-          v-model="currentTime"
-          :min-date="minDate"
-          :max-date="maxDate"
-          :formatter="formatter"
-          @cancel="showTimeDatePicker = false"
-          @confirm="onDatePickerClick"
-      />
+    <van-popup v-model="showTimeDatePicker" close-on-click-overlay round position="bottom" :style="{ height: '60%' }"
+      @click-overlay="showTimeDatePicker = false">
+      <van-datetime-picker v-if="setStartDate" show-toolbar title="选择开始日期" type="date" v-model="currentTime"
+        :min-date="minDate" :max-date="maxDate" :formatter="formatter" @cancel="showTimeDatePicker = false"
+        @confirm="onDatePickerClick" />
+      <van-datetime-picker v-else show-toolbar title="选择结束" type="date" v-model="currentTime" :min-date="minDate"
+        :max-date="maxDate" :formatter="formatter" @cancel="showTimeDatePicker = false" @confirm="onDatePickerClick" />
     </van-popup>
 
     <!--    <van-popup-->
@@ -278,7 +228,7 @@
     <van-action-sheet v-model="typeMoneyListShow" title="当期分类收支明细">
       <van-cell-group>
         <div v-for="type in allTypesMoney" :key="type.typeId">
-          <van-cell :value="'合计 ￥'+type.money">
+          <van-cell :value="'合计 ￥' + type.money">
             <template #title>
               <span class="custom-title">{{ type.typeName + " " }}</span>
               <van-tag type="primary">一级</van-tag>
@@ -286,24 +236,24 @@
           </van-cell>
           <div style="margin-left: 30px">
             <van-cell v-for="typeChild in type.children" :key="typeChild.typeId" :title="typeChild.typeName"
-                      :value="'￥'+typeChild.money"/>
+              :value="'￥' + typeChild.money" />
           </div>
           <van-divider
-              :style="{ color: '#1989fa', borderColor: '#1989fa',marginTop:'0px',marginBottom:'3px', padding: '0 16px' }"/>
+            :style="{ color: '#1989fa', borderColor: '#1989fa', marginTop: '0px', marginBottom: '3px', padding: '0 16px' }" />
         </div>
 
       </van-cell-group>
     </van-action-sheet>
     <van-dialog v-model="excelDialogShow" closeOnClickOverlay @confirm="onMakeExcelClick"
-                @cancel="excelDialogShow=false" title="生成Excel" show-cancel-button>
-      <van-field v-model="excelName" label="Excel标题" placeholder="请输入Excel标题"/>
+      @cancel="excelDialogShow = false" title="生成Excel" show-cancel-button>
+      <van-field v-model="excelName" label="Excel标题" placeholder="请输入Excel标题" />
     </van-dialog>
   </div>
 </template>
 
 <script>
 import request from "../../utils/request";
-import {Dialog, Toast} from "vant";
+import { Dialog, Toast } from "vant";
 
 export default {
   name: "Screen",
@@ -344,7 +294,7 @@ export default {
       showTimeDatePicker: false,
       setStartDate: true,
       currentTime: new Date(),
-      fastChoose: '0',
+      fastChoose: '2',
 
       excelName: "",
       items: [],
@@ -372,7 +322,7 @@ export default {
 
   methods: {
     toUpdateFlow(flowid) {
-      this.$router.push({path: "/flow/add", query: {flowId: flowid}});
+      this.$router.push({ path: "/flow/add", query: { flowId: flowid } });
     },
     onMakeExcelClick() {
       if (this.excelName == null || this.excelName == "") {
@@ -493,24 +443,24 @@ export default {
         url: "/account/getAccountNoLimit",
         method: "get",
       })
-          .then((response) => {
-            const baseData = response.data.data;
-            baseData.unshift({
-              id: -1, name: "全部账户"
-            })
-            baseData.forEach((item) => {
-              item.money = "￥" + item.money;
-              item.exemptMoney = "￥" + item.exemptMoney;
-              if (this.accountId == item.id) {
-                this.accountName = item.name
-              }
-            });
-            this.allAccounts = baseData;
-            console.log(this.allAccounts);
+        .then((response) => {
+          const baseData = response.data.data;
+          baseData.unshift({
+            id: -1, name: "全部账户"
           })
-          .catch((error) => {
-            console.log(error);
+          baseData.forEach((item) => {
+            item.money = "￥" + item.money;
+            item.exemptMoney = "￥" + item.exemptMoney;
+            if (this.accountId == item.id) {
+              this.accountName = item.name
+            }
           });
+          this.allAccounts = baseData;
+          console.log(this.allAccounts);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
 
     doGetTypes() {
@@ -518,35 +468,35 @@ export default {
         url: "/type/getType/noLimit",
         method: "get",
       })
-          .then((response) => {
-            const allTypes = response.data.data;
-            allTypes.forEach((item) => {
-              item.text = item.tname
-              if (item.childrenTypes != null) {
-                const chileTypes = item.childrenTypes;
-                chileTypes.unshift({
-                  tname: "选择当前大类",
-                  id: item.id,
-                  parent: item.parent
-                })
-                chileTypes.forEach((children) => {
-                  children.text = children.tname
-                })
-              } else {
-                var child = {
-                  tname: "选择当前大类",
-                  id: item.id,
-                  text: "选择当前大类",
-                  parent: item.parent
-                }
-                item.childrenTypes = [child]
+        .then((response) => {
+          const allTypes = response.data.data;
+          allTypes.forEach((item) => {
+            item.text = item.tname
+            if (item.childrenTypes != null) {
+              const chileTypes = item.childrenTypes;
+              chileTypes.unshift({
+                tname: "选择当前大类",
+                id: item.id,
+                parent: item.parent
+              })
+              chileTypes.forEach((children) => {
+                children.text = children.tname
+              })
+            } else {
+              var child = {
+                tname: "选择当前大类",
+                id: item.id,
+                text: "选择当前大类",
+                parent: item.parent
               }
+              item.childrenTypes = [child]
+            }
 
-              item.children = item.childrenTypes
-            })
-            this.allTypes = allTypes
-            console.log(this.allTypes)
+            item.children = item.childrenTypes
           })
+          this.allTypes = allTypes
+          console.log(this.allTypes)
+        })
     },
 
     onTypesClick(data) {
@@ -556,12 +506,12 @@ export default {
 
     fomatTime(date) {
       var year = date.getFullYear(),
-          month = date.getMonth() + 1,//月份是从0开始的
-          day = date.getDate()
+        month = date.getMonth() + 1,//月份是从0开始的
+        day = date.getDate()
 
       return year + '-' +
-          (month < 10 ? '0' + month : month) + '-' +
-          (day < 10 ? '0' + day : day) + ''
+        (month < 10 ? '0' + month : month) + '-' +
+        (day < 10 ? '0' + day : day) + ''
     },
 
     onDetailScreenChoose() {
@@ -581,22 +531,22 @@ export default {
       this.singleMonth = true
       var data = new Date()
       switch (check) {
-        case  '0':
+        case '0':
           this.startDate = this.fomatTime(new Date(data.getFullYear(), data.getMonth(), 1))
           this.endDate = ""
           this.singleMonth = true
           break
-        case  '1':
+        case '1':
           this.startDate = this.fomatTime(new Date(data.getFullYear(), data.getMonth() - 1, 1))
           this.endDate = ""
           this.singleMonth = true
           break
-        case  '2':
+        case '2':
           this.startDate = this.fomatTime(new Date(data.getFullYear(), 0, 1))
           this.endDate = this.fomatTime(new Date(data.getFullYear(), data.getMonth(), data.getDate()))
           this.singleMonth = false
           break
-        case  '3':
+        case '3':
           this.startDate = this.fomatTime(new Date(data.getFullYear() - 1, 0, 1))
           this.endDate = this.fomatTime(new Date(data.getFullYear() - 1, 11, 31))
           this.singleMonth = false

@@ -1,62 +1,38 @@
 <template>
   <div style="width:100vw; height:100vh; background: #F7F8FA">
-    <van-nav-bar v-if="this.$route.query.templateId==null" fixed placeholder
-                 title="添加模板"
-                 left-arrow
-                 right-text="管理标签"
-                 @click-left="leftClick"
-                 @click-right="toTagManage"
-    />
-    <van-nav-bar v-else fixed placeholder
-                 title="编辑模板"
-                 right-text="管理标签"
-                 left-arrow
-                 @click-left="leftClick"
-                 @click-right="toTagManage"
-    />
+    <van-nav-bar v-if="this.$route.query.templateId == null" fixed placeholder title="添加模板" left-arrow right-text="管理标签"
+      @click-left="leftClick" @click-right="toTagManage" />
+    <van-nav-bar v-else fixed placeholder title="编辑模板" right-text="管理标签" left-arrow @click-left="leftClick"
+      @click-right="toTagManage" />
 
-    <van-cell-group :border="false" inset :style="{marginTop:'20px'}">
-      <van-field
-          input-align="right"
-          v-model="template.name"
-          label="模板名称"
-          required
-          placeholder="请输入模板名称"/>
-      <van-field
-          input-align="right"
-          v-model="template.money"
-          type="number"
-          label="模板金额"
-          placeholder="请输入模板金额"
-      />
+    <van-cell-group :border="false" inset :style="{ marginTop: '20px' }">
+      <van-field input-align="right" v-model="template.name" label="模板名称" required placeholder="请输入模板名称" />
+      <van-field input-align="right" v-model="template.money" type="number" label="模板金额" placeholder="请输入模板金额" />
+      <van-field input-align="right" v-model="template.note" label="模板备注" placeholder="请输入模板备注" />
     </van-cell-group>
-    <van-cell-group  :border="false" inset :style="{marginTop:'20px'}">
+    <van-cell-group :border="false" inset :style="{ marginTop: '20px' }">
       <van-cell title="选择模板收支" is-link @click="onActionClick">
         <template #default>
           <van-tag :type="chooseAction.style">{{ chooseAction.hname }}</van-tag>
-          <van-tag
-              v-show="chooseAction.exempt"
-              style="margin-left: 10px"
-              color="gray"
-              plain
-              type="action.style"
-          >{{ chooseAction.value }}
+          <van-tag v-show="chooseAction.exempt" style="margin-left: 10px" color="gray" plain type="action.style">{{
+            chooseAction.value }}
           </van-tag>
         </template>
       </van-cell>
 
-      <van-cell :title=" chooseAction.handle==2?'选择模板源账户':'选择模板账户'" is-link @click="onAccountClick(1)"
-                :value="chooseAccount.name"/>
+      <van-cell :title="chooseAction.handle == 2 ? '选择模板源账户' : '选择模板账户'" is-link @click="onAccountClick(1)"
+        :value="chooseAccount.name" />
 
-      <van-cell v-show="chooseAction.handle==2" title="选择模板目标账户" is-link @click="onAccountClick(2)"
-                :value="chooseAccountTo.name"/>
+      <van-cell v-show="chooseAction.handle == 2" title="选择模板目标账户" is-link @click="onAccountClick(2)"
+        :value="chooseAccountTo.name" />
 
-      <van-cell title="模板账单分类" :value="chooseType.tname" is-link @click="onTypeClick"/>
+      <van-cell title="模板账单分类" :value="chooseType.tname" is-link @click="onTypeClick" />
 
-      <van-cell title="模板账单日期"   >
+      <van-cell title="模板账单日期">
         <template #icon>
 
-          <van-icon name="question-o" @click="onDateClick" :style="{ marginRight:'5px',display: 'flex', justifyContent: 'center', alignItems: 'center' }"/>
+          <van-icon name="question-o" @click="onDateClick"
+            :style="{ marginRight: '5px', display: 'flex', justifyContent: 'center', alignItems: 'center' }" />
         </template>
         <template #right-icon>
           <van-radio-group v-model="dateTypeStr" direction="horizontal">
@@ -67,77 +43,61 @@
       </van-cell>
     </van-cell-group>
 
-    <van-cell-group :border="false" inset :style="{marginTop:'20px'}">
+    <van-cell-group :border="false" inset :style="{ marginTop: '20px' }">
 
       <van-collapse :border="false" v-model="activeNames" accordion>
         <van-collapse-item title="标签筛选" :toggle="chooseTag" name="1">
           <template #value>
-            <van-tag v-if="chooseTag.id!=null" :color="chooseTag.color" closeable size="large"
-                     @close="chooseTag = {};">{{ chooseTag.name }}
+            <van-tag v-if="chooseTag.id != null" :color="chooseTag.color" closeable size="large"
+              @close="chooseTag = {};">{{ chooseTag.name }}
             </van-tag>
           </template>
           <div v-if="allTags.length !== 0" class="tags-container">
-            <div class="tag-item" v-for="tag in allTags" :key="tag.id"
-                 @click="chooseTag = tag;">
+            <div class="tag-item" v-for="tag in allTags" :key="tag.id" @click="chooseTag = tag;">
               <van-tag size="large" :color="tag.color">{{ tag.name }}</van-tag>
             </div>
           </div>
-          <van-empty v-else description="暂无标签" style="margin-top: 10px"/>
+          <van-empty v-else description="暂无标签" style="margin-top: 10px" />
 
         </van-collapse-item>
       </van-collapse>
     </van-cell-group>
 
     <div style="margin: 20px">
-      <van-button type="primary" size="large"  @click="onSubmit">{{isEdit?"修改":"新建"}}</van-button>
-      <van-button v-if="isEdit" type="danger" size="large" style="margin-top: 5px" @click="deleteTemplate" >删除</van-button>
+      <van-button type="primary" size="large" @click="onSubmit">{{ isEdit ? "修改" : "新建" }}</van-button>
+      <van-button v-if="isEdit" type="danger" size="large" style="margin-top: 5px"
+        @click="deleteTemplate">删除</van-button>
     </div>
 
-    <van-action-sheet v-if="popupStyle<=2" v-model="actionShow" :title="popupTitle">
+    <van-action-sheet v-if="popupStyle <= 2" v-model="actionShow" :title="popupTitle">
       <van-cell-group v-if="popupStyle == 0">
-        <van-cell
-            v-for="action in allActions"
-            :key="action.id"
-            @click="onChooseAction(action)">
+        <van-cell v-for="action in allActions" :key="action.id" @click="onChooseAction(action)">
           <template #title>
             <span class="custom-title">{{ action.hname }}</span>
           </template>
           <template #label>
             <van-tag :type="action.style">{{ action.handleText }}</van-tag>
-            <van-tag
-                v-show="action.exempt"
-                style="margin-left: 10px"
-                color="gray"
-                plain
-                type="action.style"
-            >{{ action.value }}
-            </van-tag
-            >
+            <van-tag v-show="action.exempt" style="margin-left: 10px" color="gray" plain type="action.style">{{
+              action.value }}
+            </van-tag>
           </template>
         </van-cell>
       </van-cell-group>
 
-      <van-cell-group v-if="popupStyle==1||popupStyle==2">
+      <van-cell-group v-if="popupStyle == 1 || popupStyle == 2">
         <van-cell v-for="account in allAccounts" :key="account.id" :title="account.name" :value="account.money"
-                  :label="account.note" @click="onChooseAccount(account,popupStyle)"/>
+          :label="account.note" @click="onChooseAccount(account, popupStyle)" />
       </van-cell-group>
     </van-action-sheet>
     <van-popup v-model="typeCascaderShow" round position="bottom">
-      <van-cascader
-          v-model="cascaderValue"
-          title="选择账单分类"
-          :options="allTypes"
-          active-color="#1989fa"
-          @close="typeCascaderShow = false"
-          :field-names="cascaderNames"
-          @finish="onChooseCascader"
-      />
+      <van-cascader v-model="cascaderValue" title="选择账单分类" :options="allTypes" active-color="#1989fa"
+        @close="typeCascaderShow = false" :field-names="cascaderNames" @finish="onChooseCascader" />
     </van-popup>
   </div>
 </template>
 <script>
 import request from "../../../utils/request";
-import {Dialog, Toast} from "vant";
+import { Dialog, Toast } from "vant";
 
 export default {
   name: "TemplateAdd.vue",
@@ -182,6 +142,7 @@ export default {
         id: "",
         name: "",
         money: "",
+        note: "",
         actionId: "",
         accountId: "",
         accountToId: "",
@@ -201,7 +162,7 @@ export default {
   methods: {
     //路由
     toTagManage() {
-      this.$router.push({path: "/template/tag"})
+      this.$router.push({ path: "/template/tag" })
     },
     leftClick() {
       this.$router.go(-1);
@@ -234,7 +195,7 @@ export default {
       this.typeCascaderShow = true;
     },
 
-    onChooseCascader({selectedOptions}) {
+    onChooseCascader({ selectedOptions }) {
       this.typeCascaderShow = false;
       this.chooseType.id = this.cascaderValue
       this.chooseType.tname = selectedOptions.map((option) => option.tname).join('/');
@@ -257,7 +218,7 @@ export default {
       }
     },
 
-    onDateClick(){
+    onDateClick() {
       Dialog({
         title: '模板账单日期',
         message: '补上月-上个月最后一天\n记本月-本月记账当天',
@@ -273,7 +234,7 @@ export default {
       }
       Dialog.confirm({
         title: '确认',
-        message: '确定提交“'+this.template.name+'”吗？'
+        message: '确定提交“' + this.template.name + '”吗？'
       }).then(() => {
         this.doSubmitRequest()
       }).catch(() => {
@@ -289,6 +250,7 @@ export default {
           id: this.isEdit ? this.template.id : null,
           name: this.template.name,
           money: this.template.money,
+          note: this.template.note,
           actionId: this.chooseAction.id,
           accountId: this.chooseAccount.id,
           accountToId: this.chooseAccountTo.id,
@@ -342,22 +304,22 @@ export default {
         url: "/account/getAccount",
         method: "get",
       })
-          .then((response) => {
-            this.requestLocks.account = true;
-            if (this.isEdit) {
-              this.unLockRequest()
-            }
-            const baseData = response.data.data;
-            baseData.forEach((item) => {
-              item.money = "￥" + item.money;
-              item.exemptMoney = "￥" + item.exemptMoney;
-            });
-            this.allAccounts = baseData;
-            console.log(this.allAccounts);
-          })
-          .catch((error) => {
-            console.log(error);
+        .then((response) => {
+          this.requestLocks.account = true;
+          if (this.isEdit) {
+            this.unLockRequest()
+          }
+          const baseData = response.data.data;
+          baseData.forEach((item) => {
+            item.money = "￥" + item.money;
+            item.exemptMoney = "￥" + item.exemptMoney;
           });
+          this.allAccounts = baseData;
+          console.log(this.allAccounts);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
 
     doGetTypes() {
@@ -365,10 +327,10 @@ export default {
         url: "/type/getTypeByActionId/" + this.chooseAction.id,
         method: "get",
       })
-          .then((response) => {
-            this.allTypes = response.data.data;
-            console.log(this.allTypes)
-          })
+        .then((response) => {
+          this.allTypes = response.data.data;
+          console.log(this.allTypes)
+        })
     },
 
     unLockRequest() {
@@ -386,36 +348,36 @@ export default {
         this.template = response.data.data;
         if (this.template.actionId == null) {
           this.chooseAction = {}
-        }else {
+        } else {
           this.chooseAction = this.allActions.find((action) => action.id === this.template.actionId);
         }
 
         if (this.template.accountId == null) {
           this.chooseAccount = {}
-        }else {
+        } else {
           this.chooseAccount = this.allAccounts.find((account) => account.id === this.template.accountId);
           this.doGetTypes()
         }
 
         if (this.template.accountToId == null) {
           this.chooseAccountTo = {}
-        }else {
+        } else {
           this.chooseAccountTo = this.allAccounts.find((account) => account.id === this.template.accountToId);
         }
 
         if (this.template.typeId == null) {
           this.chooseType = {}
-        }else {
+        } else {
           this.chooseType.id = this.template.typeId;
           this.chooseType.tname = this.template.type.tname;
         }
 
         if (this.template.tagId == null) {
           this.chooseTag = {}
-        }else {
+        } else {
           this.chooseTag = this.allTags.find((tag) => tag.id === this.template.tagId);
         }
-        this.dateTypeStr = this.template.dateType==null?"":this.template.dateType.toString();
+        this.dateTypeStr = this.template.dateType == null ? "" : this.template.dateType.toString();
         console.log(this.template);
       }).catch((error) => {
         console.log(error);
@@ -425,24 +387,24 @@ export default {
     setActionStyle(action) {
       action.value = action.exempt ? "不计入总金额" : "";
       action.handleText =
-          action.handle === 0
-              ? "账户金额增加"
-              : action.handle === 1
-                  ? "账户金额减少"
-                  : "账户金额不变";
+        action.handle === 0
+          ? "账户金额增加"
+          : action.handle === 1
+            ? "账户金额减少"
+            : "账户金额不变";
       action.style =
-          action.handle === 0
-              ? "success"
-              : action.handle === 1
-                  ? "danger"
-                  : "primary";
+        action.handle === 0
+          ? "success"
+          : action.handle === 1
+            ? "danger"
+            : "primary";
       return action
     },
 
     deleteTemplate() {
       Dialog.confirm({
         title: '确认',
-        message: '确定删除“'+this.template.name+'”吗？'
+        message: '确定删除“' + this.template.name + '”吗？'
       }).then(() => {
         request({
           url: "/template/deleteTemplate/" + this.template.id,
@@ -464,11 +426,14 @@ export default {
 .tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* 设置标签之间的间隔 */
-  padding: 15px; /* 容器的内边距 */
+  gap: 10px;
+  /* 设置标签之间的间隔 */
+  padding: 15px;
+  /* 容器的内边距 */
 }
 
 .tag-item {
-  margin-bottom: 5px; /* 增加标签下方的间隔，避免视觉上的拥挤 */
+  margin-bottom: 5px;
+  /* 增加标签下方的间隔，避免视觉上的拥挤 */
 }
 </style>
