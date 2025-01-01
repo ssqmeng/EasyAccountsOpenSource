@@ -498,7 +498,8 @@ export default {
           note: this.submitNote
         }
       }).then(() => {
-        this.$router.go(-1)
+        //this.$router.go(-1)
+        this.$router.push({path: "/flow"});
       })
     },
 
