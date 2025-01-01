@@ -27,7 +27,7 @@ public class FlowSelectProvider {
                     WHERE("a.handle = #{handle}", "flow.f_date  like #{date}");
                 }
                 if (order == 0) {
-                    ORDER_BY("flow.f_date desc ");
+                    ORDER_BY("flow.f_date desc,flow.id desc ");
                 } else {
                     ORDER_BY("flow.money+0 desc ");
                 }
@@ -55,7 +55,7 @@ public class FlowSelectProvider {
                 } else {
                     WHERE("a.handle = #{handle}", "flow.f_date  like #{date}","flow.account_id=#{accid}");
                 }
-                ORDER_BY("flow.f_date desc ");
+                ORDER_BY("flow.f_date desc,flow.id desc ");
             }
         }.toString();
         log.info( "method:  getFlowByAccount\n"+sqlStr);
@@ -145,7 +145,7 @@ public class FlowSelectProvider {
             }
         }
 
-        sql.append("ORDER BY flow.f_date DESC");
+        sql.append("ORDER BY flow.f_date DESC,flow.id desc");
         log.info("method: getFlowByScreen\n" + sql);
         return sql.toString();
     }

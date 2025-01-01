@@ -300,7 +300,7 @@ export default {
         this.query();
       } else if (value === '2') {
         this.startChooseMonth = `${year}-01`;
-        this.endChooseMonth = `${year}-${month.toString().padStart(2, "0")}`;
+        this.endChooseMonth = `${year}-12`;
         this.query();
       } else if (value === '3') {
         year -= 1; // 上一年

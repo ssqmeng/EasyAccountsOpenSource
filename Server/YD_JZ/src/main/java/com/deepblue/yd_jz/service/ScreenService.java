@@ -192,6 +192,7 @@ public class ScreenService {
         });
         excelBean.setTotalIn(flowListDto.getTotalIn());
         excelBean.setTotalOut(flowListDto.getTotalOut());
+        excelBean.setTotalEarn(new BigDecimal(flowListDto.getTotalIn()).subtract(new BigDecimal(flowListDto.getTotalOut())).toString());
         excelBean.setDate(screenFlowRequestDto.getStartDate() + " 至 " + screenFlowRequestDto.getEndDate());
         excelBean.setName(excelName);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
