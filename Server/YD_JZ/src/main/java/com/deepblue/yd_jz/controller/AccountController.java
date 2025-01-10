@@ -50,6 +50,14 @@ public class AccountController {
         return baseDto;
     }
 
+    @ApiOperation(value = "获取所有未禁用的账户(不包括无账户）")
+    @GetMapping("/getAccount2")
+    public BaseDto<List<AccountResponseDto>> getAllAccount2() {
+        BaseDto<List<AccountResponseDto>> baseDto = BaseDto.setSuccessBean();
+        baseDto.setData(accountService.getAllAccount2());
+        return baseDto;
+    }
+
     @GetMapping("/getAccountNoLimit")
     public BaseDto<List<AccountResponseDto>> getAllAccountNoLimit() {
         BaseDto<List<AccountResponseDto>> baseDto = BaseDto.setSuccessBean();

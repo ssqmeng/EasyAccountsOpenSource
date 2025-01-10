@@ -582,8 +582,13 @@ export default {
           .then((response) => {
             const baseData = response.data.data;
             baseData.forEach((item) => {
-              item.money = "￥" + item.money;
-              item.exemptMoney = "￥" + item.exemptMoney;
+              if(item.id == 1){
+                item.money =''
+                item.exemptMoney =''
+              }else{
+                item.money = "￥" + item.money;
+                item.exemptMoney = "￥" + item.exemptMoney;
+              }
             });
             this.allAccounts = baseData;
             console.log(this.allAccounts);

@@ -30,7 +30,7 @@ public class HomeService {
 
     @Transactional(rollbackFor = Exception.class)
     public HomeDto getHomeBean() {
-        List<Account> accounts = accountDao.findByDisableFalse();
+        List<Account> accounts = accountDao.queryAllAccount();
         BigDecimal totalAsset = new BigDecimal("0");
         BigDecimal exemptAsset = new BigDecimal("0");
         BigDecimal cardAsset = new BigDecimal("0");//信用卡余额

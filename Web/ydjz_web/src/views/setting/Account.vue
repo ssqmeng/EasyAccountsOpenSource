@@ -114,7 +114,7 @@ export default {
     },
     onReload(){
       request({
-        url: "/account/getAccount",
+        url: "/account/getAccount2",
         method: "get",
       })
         .then((response) => {
@@ -138,7 +138,7 @@ export default {
     },
     onLoad() {
       request({
-        url: "/account/getAccount",
+        url: "/account/getAccount2",
         method: "get",
       })
         .then((response) => {

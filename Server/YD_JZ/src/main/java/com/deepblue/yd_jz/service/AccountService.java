@@ -111,6 +111,19 @@ public class AccountService {
         return accountResponseDtos;  // 返回转换后的客户端可见的账户列表
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public List<AccountResponseDto> getAllAccount2() {
+        List<Account> accounts = accountRepository.queryAllAccount();  // 获取所有未禁用的账户(不包括无账户）
+        List<AccountResponseDto> accountResponseDtos = new ArrayList<>();
+        for (Account a : accounts) {
+            AccountResponseDto toClient = new AccountResponseDto();
+            BeanUtils.copyProperties(a, toClient);  // 将 Account 实体的属性复制到 AccountToClient
+            toClient.setName(a.getAName());  // 特别设置名称，假设 AccountToClient 有不同的属性名
+            accountResponseDtos.add(toClient);  // 将处理后的对象添加到列表中
+        }
+        return accountResponseDtos;  // 返回转换后的客户端可见的账户列表
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public void disableAccount(int id) {
@@ -130,7 +143,7 @@ public class AccountService {
 
     @Transactional(readOnly = true)  // 使用只读事务，因为这是一个查询操作
     public List<Account> getAllOriginAccounts() {
-        return accountRepository.findAll();  // 调用 JPA 的 findAll() 获取所有账户记录
+        return accountRepository.queryAllAccount();  // 调用 JPA 的 findAll() 获取所有账户记录
     }
 
     @Transactional(rollbackFor = Exception.class)
