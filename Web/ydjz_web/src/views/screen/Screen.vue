@@ -314,6 +314,7 @@ export default {
     this.endDate = ""
     this.showTimeDatePicker = false
     this.handle = 3
+    this.onFastDateChoose(this.fastChoose)
     this.doGetTypes()
     this.doGetActions()
     this.doGetAccounts()
@@ -374,7 +375,41 @@ export default {
     onNoteSearch() {
       this.doGetCurrentFlow()
     },
+    doConfirmDeleteFlow(flow) {
+      console.log(this.flow)
+      Dialog.confirm({
+        title: '确定删除吗？',
+        message:
+            '确定删除 ￥' + flow.money + " 的  '" + flow.tname + "'  记录吗？",
+      })
+          .then(() => {
+            this.flowId = flow.id
+            this.doDeleteFlow()
+          })
+          .catch(() => {
+            // on cancel
+          });
 
+    },
+
+    doDeleteFlow() {
+      request({
+        url: "/flow/deleteFlow/" + this.flowId,
+        method: "delete"
+      }).then(() => {
+        this.doGetCurrentFlow();
+      });
+    },
+
+    doCollectFlow(flow) {
+      console.log("/flow/collectFlow/" + flow.id + "/" + (flow.collect ? 0 : 1))
+      request({
+        url: "/flow/collectFlow/" + flow.id + "/" + (flow.collect ? 0 : 1),
+        method: "put"
+      }).then(() => {
+        this.doGetCurrentFlow();
+      });
+    },
     doGetCurrentFlow() {
       request({
         url: "/screen/getFlowByScreen",
