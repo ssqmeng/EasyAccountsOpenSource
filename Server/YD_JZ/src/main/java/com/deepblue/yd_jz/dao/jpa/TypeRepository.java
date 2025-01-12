@@ -18,11 +18,11 @@ public interface TypeRepository extends JpaRepository<Type, Integer> {
     List<Type> findByParentNoLimit(@Param("parent") int parent);
 
     // 查询t_disable为false和archive为false或null的记录
-    @Query("SELECT t FROM Type t WHERE t.disable = false AND (t.archive IS NULL OR t.archive = false)")
+    @Query("SELECT t FROM Type t WHERE t.disable = false AND (t.archive IS NULL OR t.archive = false) order by sortno")
     List<Type> findAllTypes();
 
     // 查询action_id为指定值或null的记录
-    @Query("SELECT t FROM Type t WHERE (t.actionId = :actionId OR t.actionId IS NULL) AND t.disable = false AND (t.archive IS NULL OR t.archive = false)")
+    @Query("SELECT t FROM Type t WHERE (t.actionId = :actionId OR t.actionId IS NULL) AND t.disable = false AND (t.archive IS NULL OR t.archive = false) order by sortno")
     List<Type> findByActionIdOrNull(@Param("actionId") Integer actionId);
 
     @Query("SELECT t FROM Type t WHERE t.archive = true")

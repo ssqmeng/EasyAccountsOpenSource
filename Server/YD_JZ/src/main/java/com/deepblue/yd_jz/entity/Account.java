@@ -36,4 +36,7 @@ public class Account {
 
     @Column(name = "note", length = 100)
     private String note;
+
+    @Column(name = "sortno", length = 3)
+    private String sortno;
 }

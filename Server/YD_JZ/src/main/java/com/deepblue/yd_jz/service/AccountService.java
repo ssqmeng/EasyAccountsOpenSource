@@ -36,6 +36,8 @@ public class AccountService {
         account.setDisable(false);
         account.setCreateTime(new Date());
         accountRepository.save(account);
+//        account.setSortno(account.getId()+"");
+//        accountRepository.save(account);
     }
 
 

@@ -8,8 +8,9 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
+    @Query("select a from Account a where a.disable = 0 order by a.sortno")
     List<Account> findByDisableFalse();
 
-    @Query("select a from Account a where a.disable = 0 and id <> 1")
+    @Query("select a from Account a where a.disable = 0 and a.id <> 1 order by a.sortno")
     List<Account> queryAllAccount();
 }

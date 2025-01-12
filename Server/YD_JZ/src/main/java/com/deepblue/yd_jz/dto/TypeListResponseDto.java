@@ -23,6 +23,8 @@ public class TypeListResponseDto {
 
     private Action action;  // Entity relationship
 
+    private String sortno;
+
     public TypeListResponseDto convertToDto(Type type) {
         if (type == null) {
             return this;
@@ -42,6 +44,7 @@ public class TypeListResponseDto {
         typeListResponseDto.setHasChild(type.isHasChild());
         typeListResponseDto.setArchive(type.getArchive());
         typeListResponseDto.setAction(type.getAction());
+        typeListResponseDto.setSortno(type.getSortno());
         return typeListResponseDto;
     }
 }

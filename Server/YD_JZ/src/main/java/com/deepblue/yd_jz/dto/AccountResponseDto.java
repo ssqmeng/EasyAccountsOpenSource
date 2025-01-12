@@ -14,6 +14,7 @@ public class AccountResponseDto {
     private String card;
     private String createTime;
     private String note;
+    private String sortno;
 
     public AccountResponseDto convertToDto(Account account) {
         if (account == null) {
@@ -32,6 +33,7 @@ public class AccountResponseDto {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         accountResponseDto.setCreateTime(sdf.format(account.getCreateTime()));
         accountResponseDto.setNote(account.getNote());
+        accountResponseDto.setSortno(account.getSortno());
         return accountResponseDto;
     }
 }

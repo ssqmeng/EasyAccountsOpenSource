@@ -21,19 +21,20 @@
       <!--
       <van-field v-model="card" label="银行卡号" placeholder="请输入银行卡号" />
       -->
-
-      <van-field v-model="note" rows="1" autosize label="账户信息备注" type="textarea" maxlength="50" placeholder="请输入备注" />
+      <van-field v-model="sortno" label="排序号" required placeholder="排序号" />
+      <van-field v-model="note" rows="1" autosize label="账户备注" type="textarea" maxlength="50" placeholder="请输入备注" />
     </van-cell-group>
 
 
-    
+
 
     <van-divider v-show="this.$route.query.accountId != null"
       :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 最近交易
     </van-divider>
-    
+
     <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-      <van-button v-show="flows.length != 0" @click=toScreen()  type="default" round size="small" style="margin-right: 10px;"> 更多交易
+      <van-button v-show="flows.length != 0" @click=toScreen() type="default" round size="small"
+        style="margin-right: 10px;"> 更多交易
       </van-button>
     </div>
 
@@ -60,7 +61,7 @@
                 <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
                 <label v-if="flow.note && flow.note.length > 0"
                   style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
-                    "备注：" + flow.note
+                    "备注：" + doGetNotString(flow)
                   }}</label>
               </div>
             </template>
@@ -111,7 +112,8 @@ export default {
       //singleMonth: true,//是否查看当月
       flows: [],
       exempt: "",
-      note: ""
+      note: "",
+      sortno: ""
     };
   },
   mounted() {
@@ -138,10 +140,21 @@ export default {
         this.exempt = account.exemptMoney;
         this.note = account.note;
         this.money = account.money;
+        this.sortno = account.sortno;
       });
     },
     toUpdateFlow(flowid) {
       this.$router.push({ path: "/flow/add", query: { flowId: flowid } });
+    },
+    doShowNote(flow) {
+      if (flow.note != null && flow.note.length > 4) {
+        Dialog.alert({
+          title: '备注',
+          message: flow.note,
+        }).then(() => {
+          // on close
+        });
+      }
     },
     doConfirmDeleteFlow(flow) {
       console.log(this.flow)
@@ -220,7 +233,8 @@ export default {
           money: this.money,
           card: this.card,
           exemptMoney: this.exempt,
-          note: this.note
+          note: this.note,
+          sortno: this.sortno
         }
       })
         .then((response) => {
@@ -252,7 +266,8 @@ export default {
           money: this.money,
           card: this.card,
           exemptMoney: this.exempt,
-          note: this.note
+          note: this.note,
+          sortno: this.sortno
         }
       })
         .then(() => {

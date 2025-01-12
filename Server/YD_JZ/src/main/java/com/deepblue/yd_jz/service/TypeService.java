@@ -1,16 +1,20 @@
 package com.deepblue.yd_jz.service;
 
-import com.deepblue.yd_jz.dto.TypeSingleDto;
-import com.deepblue.yd_jz.dto.TypeListResponseDto;
-import com.deepblue.yd_jz.entity.Type;
 import com.deepblue.yd_jz.dao.jpa.TypeRepository;
+import com.deepblue.yd_jz.dto.TypeListResponseDto;
+import com.deepblue.yd_jz.dto.TypeSingleDto;
+import com.deepblue.yd_jz.entity.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TypeService {
@@ -29,6 +33,7 @@ public class TypeService {
         type.setParent(typeSingleDto.getParent());
         type.setParent(typeSingleDto.getParent() == null ? -1 : typeSingleDto.getParent());
         type.setActionId(typeSingleDto.getActionId());
+        type.setSortno(typeSingleDto.getSortno());
 
         typeRepository.save(type);
     }
@@ -38,6 +43,7 @@ public class TypeService {
         Type type = new Type();
         type.setId(typeSingleDto.getId());
         type.setTName(typeSingleDto.getTName());
+        type.setSortno(typeSingleDto.getSortno());
         if (typeSingleDto.getParent()==null){
             type.setParent(-1);
         }else {
@@ -109,7 +115,7 @@ public class TypeService {
 
     @Transactional(rollbackFor = Exception.class)
     public List<TypeListResponseDto> queryAllType(boolean limit) {
-        List<Type> allTypes = limit?typeRepository.findAllTypes():typeRepository.findAll();
+        List<Type> allTypes = limit?typeRepository.findAllTypes():typeRepository.findAll(Sort.by(Sort.Order.asc("sortno")));
         List<TypeListResponseDto> toClients = new ArrayList<>();
         for (Type type : allTypes) {
             if (type.getParent() == -1) {

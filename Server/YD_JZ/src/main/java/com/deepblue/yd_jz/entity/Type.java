@@ -36,5 +36,8 @@ public class Type {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "action_id", insertable = false, updatable = false)
     private Action action;  // Entity relationship
+
+    @Column(name = "sortno", nullable = false, length = 50)
+    private String sortno;
 }
 

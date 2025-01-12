@@ -11,4 +11,5 @@ public class AccountRequestDto {
     private String exemptMoney;
     private String card;
     private String note;
+    private String sortno;
 }
