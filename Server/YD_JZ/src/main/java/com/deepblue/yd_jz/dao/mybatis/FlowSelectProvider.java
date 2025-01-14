@@ -102,7 +102,7 @@ public class FlowSelectProvider {
         return sql.toString();
     }*/
 
-    public String getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth, boolean isCollect, String note) {
+    public String getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth, boolean isCollect, String note,int order) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 "flow.id, flow.f_date AS flowDate, flow.money, flow.collect, flow.exempt, flow.note," +
                 "a.handle, a.h_name AS handleName, a.id AS actionId," +
@@ -144,8 +144,12 @@ public class FlowSelectProvider {
                 sql.append("AND flow.note LIKE '%").append(trimmedNote).append("%'\n");
             }
         }
-
-        sql.append("ORDER BY flow.f_date DESC,flow.id desc");
+        if (order == 1) {
+            sql.append(" order by flow.money+0 desc ");
+        } else {
+            sql.append(" ORDER BY flow.f_date DESC,flow.id desc");
+        }
+        //sql.append("ORDER BY flow.f_date DESC,flow.id desc");
         log.info("method: getFlowByScreen\n" + sql);
         return sql.toString();
     }

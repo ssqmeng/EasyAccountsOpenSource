@@ -52,7 +52,8 @@ public class ScreenService {
                 getBean.getStartDate().trim(),
                 getBean.getEndDate().trim(),
                 getBean.isSingleMonth(),
-                getBean.isCollect(),getBean.getNote());
+                getBean.isCollect(),getBean.getNote(),
+                getBean.getOrder());
         FlowListDto baseBean = new FlowListDto();
         baseBean.setFlows(new ArrayList<>());
         BigDecimal moneyIn = new BigDecimal("0");

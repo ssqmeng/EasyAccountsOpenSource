@@ -72,7 +72,7 @@
             <template #label>
               <div>
                 <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
-                <label v-if=" flow.note && flow.note.length > 0"
+                <label v-if=" flow.note && flow.note.length > 0 "
                   style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
                     "备注：" + doGetNotString(flow)
                   }}</label>
@@ -280,7 +280,9 @@ export default {
             flow.handleName = "内部转账";
             flow.tagStyle = "primary";
             flow.baseColor = "#39bdfa";
+            flow.aname = flow.aname + "->" + flow.toAName
           }
+
           if (this.handle === 3) {
             this.detail = this.chooseMonth + "总收入： ￥" + this.totalIn + "  总支出： ￥" + this.totalOut;
           }
@@ -350,9 +352,10 @@ export default {
     },
 
     doGetNotString(flow){
-      if (flow.note==null||flow.note==""){
-        return "无备注"
-      }else if (flow.note.length>4){
+      debugger
+      if (flow.note == null || flow.note == "") {
+          return "无备注"
+      } else if (flow.note.length>4){
         return flow.note.substring(0,3)+".."
       }else {
         return flow.note

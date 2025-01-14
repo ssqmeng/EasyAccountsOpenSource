@@ -13,6 +13,7 @@ public class ScreenFlowRequestDto {
     private boolean isSingleMonth;
     private boolean collect;
     private String note;
+    private int order;
     private ArrayList<Integer> actions;
     private ArrayList<Integer> types;
 

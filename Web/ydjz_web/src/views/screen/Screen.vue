@@ -11,6 +11,10 @@
         </template>
       </van-search>
       <div style="height: 1px;width: 100%;background: #F7F8FA" />
+      <van-dropdown-menu active-color="#1989fa">
+        <van-dropdown-item v-model="handle" :options="option1" @change="onHandleClick" />
+        <van-dropdown-item v-model="order" :options="option2" @change="onHandleClick" />
+      </van-dropdown-menu>
     </van-sticky>
 
     <van-divider content-position="left"
@@ -22,7 +26,30 @@
       <van-radio name=1 @click="onFastDateChoose(fastChoose)">上月</van-radio>
       <van-radio name=2 @click="onFastDateChoose(fastChoose)">全年</van-radio>
       <van-radio name=3 @click="onFastDateChoose(fastChoose)">上年</van-radio>
+      <van-radio name=4 @click="onFastDateChoose(fastChoose)">自定义</van-radio>
     </van-radio-group>
+    <div style="padding-left: 15px;padding-right: 15px;padding-top: 10px" v-show="fastChoose == 4">
+      <!-- 日期选择区域 -->
+      <div style="display: flex; justify-content: left; align-items: center; margin-bottom: 10px;"
+        v-show="fastChoose == 4">
+        <!-- 开始日期组 -->
+        <div style="display: flex; align-items: center; margin-right: 20px;">
+          <span style="margin-right: 10px; font-size: 14px;">开始：</span>
+          <van-button type="default" round size="small" icon="clock-o"
+            @click="() => { showTimeDatePicker = true; setStartDate = true }">
+            {{ startDate }}
+          </van-button>
+        </div>
+        <!-- 结束日期组 -->
+        <div style="display: flex; align-items: center;">
+          <span style="margin-right: 10px; font-size: 14px;">结束：</span>
+          <van-button type="default" round size="small" icon="clock-o"
+            @click="() => { showTimeDatePicker = true; setStartDate = false }">
+            {{ endDate }}
+          </van-button>
+        </div>
+      </div>
+    </div>
     <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 当期收支情况
     </van-divider>
     <div style=" height:80px;background: #FFF;margin-left: 20px">
@@ -83,9 +110,10 @@
             <van-button v-if="flow.collect" square type="warning" class="delete-button" @click="doCollectFlow(flow)">
               取消<br>收藏
             </van-button>
-            <van-button v-else type="primary" color="#1989fa" class="delete-button" @click="doCollectFlow(flow)">收藏<br>账单
+            <van-button v-else type="primary" color="#1989fa" class="delete-button"
+              @click="doCollectFlow(flow)">收藏<br>账单
             </van-button>
-            <van-button square text="删除" type="danger" class="delete-button" @click="doConfirmDeleteFlow(flow)"/>
+            <van-button square text="删除" type="danger" class="delete-button" @click="doConfirmDeleteFlow(flow)" />
           </template>
         </van-swipe-cell>
       </div>
@@ -128,9 +156,8 @@
 
       <van-tree-select :style="{ margin: '15px' }" :items="allTypes" :active-id.sync="chooseTypes"
         :main-active-index.sync="activeIndex" @click-item="onTypesClick" />
-
+      <!--   时间选择 
       <van-divider :style="{ color: '#1989fa', }" content-position="left">时间选择</van-divider>
-      <!--   时间选择   -->
       <van-cell-group inset :border="false">
 
         <van-cell title="开始时间">
@@ -157,7 +184,19 @@
         </van-cell>
 
       </van-cell-group>
+      -->
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">筛选收藏</van-divider>
+      <van-cell-group inset :border="false">
 
+        <van-cell title="筛选收藏">
+          <template #right-icon>
+            <van-switch v-model="collect" size="24px" />
+          </template>
+        </van-cell>
+
+      </van-cell-group>
+
+      <!--资金流向
       <van-divider :style="{ color: '#1989fa', }" content-position="left">资金流向</van-divider>
       <van-cell-group inset :border="false">
 
@@ -187,6 +226,7 @@
         </van-radio-group>
 
       </van-cell-group>
+      -->
       <van-divider :style="{ color: '#1989fa', }" content-position="left">操作选择</van-divider>
 
       <van-cell-group inset :border="false">
@@ -248,6 +288,37 @@
       @cancel="excelDialogShow = false" title="生成Excel" show-cancel-button>
       <van-field v-model="excelName" label="Excel标题" placeholder="请输入Excel标题" />
     </van-dialog>
+
+    <!--
+    <van-popup v-model="showStartPicker" round position="bottom">
+      <van-datetime-picker
+          show-toolbar
+          title="选择开始年月"
+          type="date"
+          v-model="currentTime"
+          :min-date="startMinDate"
+          :max-date="startMaxDate"
+          :formatter="formatter"
+          @cancel="showStartPicker = false"
+          @confirm="this.onStartPickerClick"
+      />
+    </van-popup>
+
+    <van-popup v-model="showEndPicker" round position="bottom">
+      <van-datetime-picker
+          show-toolbar
+          title="选择结束年月"
+          type="date"
+          v-model="currentTime"
+          :min-date="endMinDate"
+          :max-date="endMaxDate"
+          :formatter="formatter"
+          @cancel="showEndPicker = false"
+          @confirm="this.onEndPickerClick"
+      />
+    </van-popup>
+    -->
+
   </div>
 </template>
 
@@ -275,6 +346,21 @@ export default {
       chooseActions: [],//当前选择的操作
       useNote: false,//是否使用备注
       note: "",//备注
+      order: 0,//排序
+
+      option1: [
+        { text: "总览", value: 3 },
+        { text: "只看流入", value: 0 },
+        { text: "只看流出", value: 1 },
+        { text: "只看内部转账", value: 2 }
+      ],
+      option2: [
+        { text: "按时间排序", value: 0 },
+        { text: "按金额排序", value: 1 }
+      ],
+
+      showStartPicker: false,
+      showEndPicker: false,
 
       //以下是网络内容
       allTypes: [],
@@ -324,6 +410,9 @@ export default {
   methods: {
     toUpdateFlow(flowid) {
       this.$router.push({ path: "/flow/add", query: { flowId: flowid } });
+    },
+    onHandleClick() {
+      this.doGetCurrentFlow();
     },
     onMakeExcelClick() {
       if (this.excelName == null || this.excelName == "") {
@@ -380,15 +469,15 @@ export default {
       Dialog.confirm({
         title: '确定删除吗？',
         message:
-            '确定删除 ￥' + flow.money + " 的  '" + flow.tname + "'  记录吗？",
+          '确定删除 ￥' + flow.money + " 的  '" + flow.tname + "'  记录吗？",
       })
-          .then(() => {
-            this.flowId = flow.id
-            this.doDeleteFlow()
-          })
-          .catch(() => {
-            // on cancel
-          });
+        .then(() => {
+          this.flowId = flow.id
+          this.doDeleteFlow()
+        })
+        .catch(() => {
+          // on cancel
+        });
 
     },
 
@@ -423,7 +512,8 @@ export default {
           collect: this.collect,
           types: this.chooseTypes,
           actions: this.chooseActions,
-          note: this.note
+          note: this.note,
+          order: this.order
         }
       }).then((response) => {
         console.log(response.data.data);
@@ -586,6 +676,11 @@ export default {
           this.endDate = this.fomatTime(new Date(data.getFullYear() - 1, 11, 31))
           this.singleMonth = false
           break
+        case '4':
+          //this.startDate = this.fomatTime(new Date(data.getFullYear() - 1, 0, 1))
+          //this.endDate = this.fomatTime(new Date(data.getFullYear() - 1, 11, 31))
+          this.singleMonth = false
+          break
       }
       console.log(this.startDate)
       console.log(this.endDate)
@@ -594,18 +689,23 @@ export default {
     },
 
     onDatePickerClick(value) {
-      this.fastChoose = -1
+      //this.fastChoose = 4
       this.showTimeDatePicker = false
       if (this.setStartDate) {
         this.startDate = this.fomatTime(value)
       } else {
         this.endDate = this.fomatTime(value)
       }
+      this.doGetCurrentFlow()
     },
 
     doGetNotString(flow) {
       if (flow.note == null || flow.note == "") {
-        return "无备注"
+        if (flow.type == 124) {
+          return flow.toAName
+        } else {
+          return "无备注"
+        }
       } else if (flow.note.length > 4) {
         return flow.note.substring(0, 3) + ".."
       } else {
@@ -622,6 +722,35 @@ export default {
           // on close
         });
       }
+    },
+    onStartPickerClick(value) {
+      const selectedDate = new Date(value);
+      console.log(selectedDate);
+      //this.startChooseMonth = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+      this.startDate = selectedDate;
+      this.showStartPicker = false;
+
+      // 更新结束日期选择器的最小日期为选中的开始日期的当月第一天
+      this.endMinDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+
+      // 更新结束日期选择器的最大日期为当前年份的12月，或者选中的开始日期的当年当月（如果开始时间是今年）
+      const currentYear = new Date().getFullYear();
+      const endMaxMonth = selectedDate.getFullYear() === currentYear ? new Date().getMonth() : 11;
+      this.endMaxDate = new Date(selectedDate.getFullYear(), endMaxMonth, new Date(selectedDate.getFullYear(), endMaxMonth + 1, 0).getDate());
+    },
+
+    onEndPickerClick(value) {
+      const selectedDate = new Date(value);
+      console.log(selectedDate);
+      //this.endChooseMonth = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+      this.endDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1).toString().padStart(2, "0");;
+      this.showEndPicker = false;
+
+      // 更新开始日期选择器的最小日期为选中的结束日期的当年1月
+      this.startMinDate = new Date(selectedDate.getFullYear(), 0, 1);
+
+      // 更新开始日期选择器的最大日期为选中的结束日期的当年当月
+      this.startMaxDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate());
     },
   }
 }
