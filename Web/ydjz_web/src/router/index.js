@@ -18,6 +18,7 @@ const routes = [
     path: "/",
     name: "Home",
     component: HomeLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "/setting",
@@ -155,15 +156,34 @@ const routes = [
   },
 ];
 
+
+// 在默认情况下，为所有路由添加 requiresAuth: true
+const routesWithAuth = routes.map(route => {
+  if (route.path !== '/login') {
+    route.meta = { requiresAuth: true };  // 除了登录页面，其他都需要认证
+  }
+  return route;
+});
+
 const router = new VueRouter({
   mode: "hash",
   base: process.env.BASE_URL,
-  routes,
+  routes: routesWithAuth,
 });
 
+// router.beforeEach((to, from, next) => {
+//   NProgress.start();
+//   next();
+// });
+
+// 路由守卫
 router.beforeEach((to, from, next) => {
-  NProgress.start();
-  next();
+  const token = localStorage.getItem('token');
+  if (to.matched.some(record => record.meta.requiresAuth) && !token) {
+    next('/login');
+  } else {
+    next();
+  }
 });
 
 router.afterEach(() => {

@@ -1,13 +1,27 @@
 package com.deepblue.yd_jz.utils;
 
+import com.deepblue.yd_jz.config.HttpRequestInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private HttpRequestInterceptor httpRequestInterceptor;
+
+    // 配置拦截器
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        //设置跨域得拦截器 ,/** 表示拦截所有请求
+        registry.addInterceptor(httpRequestInterceptor).addPathPatterns("/**");
+    }
 
     @Bean
     public CorsFilter corsFilter() {

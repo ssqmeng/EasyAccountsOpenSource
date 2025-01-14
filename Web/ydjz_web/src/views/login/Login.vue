@@ -5,11 +5,11 @@
       <form @submit.prevent="login">
         <div class="input-group">
           <label for="username">用户名</label>
-          <input type="text" id="username" v-model="username" placeholder="Enter your username" required />
+          <input type="text" id="username" v-model="username" placeholder="输入用户名" required />
         </div>
         <div class="input-group">
           <label for="password">密码</label>
-          <input type="password" id="password" v-model="password" placeholder="Enter your password" required />
+          <input type="password" id="password" v-model="password" placeholder="输入密码" required />
         </div>
         <button type="submit" class="btn">登录</button>
       </form>
@@ -73,12 +73,12 @@ export default {
 }
 
 body {
+  height: 100%;           /* Ensure body and html take full height */
   font-family: 'Arial', sans-serif;
   background-color: #f7f7f7;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
 }
 
 .login-container {
@@ -87,7 +87,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  
 }
 
 .login-box {
@@ -97,6 +97,7 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  height: 100%;
   text-align: center;
 }
 
