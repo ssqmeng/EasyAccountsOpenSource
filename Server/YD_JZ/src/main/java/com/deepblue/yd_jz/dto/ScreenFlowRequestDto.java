@@ -10,6 +10,8 @@ public class ScreenFlowRequestDto {
     private int accountId;
     private String startDate;
     private String endDate;
+    private String minMoney;
+    private String maxMoney;
     private boolean isSingleMonth;
     private boolean collect;
     private String note;
@@ -34,6 +36,15 @@ public class ScreenFlowRequestDto {
 
     public String getEndDate() {
         return endDate==null?"":endDate;
+    }
+
+    public String getMinMoney() {
+        return minMoney==null?"":minMoney;
+    }
+
+
+    public String getMaxMoney() {
+        return maxMoney==null?"":maxMoney;
     }
 
     public boolean useTypeScreen(){

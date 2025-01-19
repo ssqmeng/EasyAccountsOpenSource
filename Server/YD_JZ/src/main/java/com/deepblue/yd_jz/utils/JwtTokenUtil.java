@@ -11,7 +11,7 @@ import java.util.Date;
 public class JwtTokenUtil {
 
     private static final String SECRET_KEY = "y8ae0+AqxMJ7/Wtts4bxYKhj45MePbEwSOVs4ZUTVhCeFfnKQweh1Q5IOmhFlqv6VlyfO8x9jej0di7ItDI0Vw=="; // 使用强密钥
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1小时有效期
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 1小时有效期
 
     // 生成JWT token
     public static String generateToken(String username) {

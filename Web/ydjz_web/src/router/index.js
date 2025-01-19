@@ -111,6 +111,14 @@ const routes = [
       ),
   },
   {
+    path: "/cycle/add",
+    name: "CyclAdd",
+    component: () =>
+      import(
+        /* webpackChunkName: "template" */ "../views/setting/cycle/CycleTemplateAdd.vue"
+      ),
+  },
+  {
     path: "/template/tag",
     name: "TemplateTag",
     component: () =>
@@ -150,6 +158,15 @@ const routes = [
         component: () =>
           import(
             /* webpackChunkName: "setting" */ "../views/setting/template/Template.vue"
+          ),
+      }
+      ,
+      {
+        path: "/setting/cycle",
+        name: "Cycle",
+        component: () =>
+          import(
+            /* webpackChunkName: "setting" */ "../views/setting/cycle/CycleTemplate.vue"
           ),
       }
     ],

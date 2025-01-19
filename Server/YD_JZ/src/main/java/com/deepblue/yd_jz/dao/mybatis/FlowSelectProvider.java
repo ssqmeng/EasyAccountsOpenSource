@@ -102,7 +102,7 @@ public class FlowSelectProvider {
         return sql.toString();
     }*/
 
-    public String getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth, boolean isCollect, String note,int order) {
+    public String getFlowByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, boolean isCollect, String note,int order) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 "flow.id, flow.f_date AS flowDate, flow.money, flow.collect, flow.exempt, flow.note," +
                 "a.handle, a.h_name AS handleName, a.id AS actionId," +
@@ -133,8 +133,16 @@ public class FlowSelectProvider {
             }
         }
 
+        if (!"null".equals(minMoney) && !"".equals(minMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) >= CAST('").append(minMoney).append("' as DECIMAL ) \n");
+        }
+
+        if (!"null".equals(maxMoney) && !"".equals(maxMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
+        }
+
         if (isCollect) {
-            sql.append("AND flow.collect = 1\n");
+            sql.append(" AND flow.collect = 1 \n");
         }
 
         if (note != null) {

@@ -56,10 +56,10 @@
       <div style="margin-top: 10px; float: left">
         <div v-show="this.totalIn != '0'">当期总收入： <span style="color: #42b983">￥{{
           this.totalIn
-        }}</span></div>
+            }}</span></div>
         <div v-show="this.totalOut != '0'">当期总支出： <span style="color: #f54949">￥{{
           this.totalOut
-        }}</span></div>
+            }}</span></div>
         <div>当期结余： ￥{{ this.totalEarn }}</div>
         <div v-show="this.handle === '2'">内部转账笔数： {{ this.flows.length }}</div>
       </div>
@@ -185,6 +185,18 @@
 
       </van-cell-group>
       -->
+
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">金额范围</van-divider>
+      <van-cell-group inset :border="false" style="display: flex; justify-content: space-between;">
+        <van-field input-align="right" v-model="minMoney" type="number" label="最小值" placeholder="最小金额"
+          @touchstart.native.stop="keyboardShow = true"
+          style="flex: 1; margin-right: 10px; height: 50px; " label-width="80px" />
+
+        <van-field input-align="right" v-model="maxMoney" type="number" label="最大值" placeholder="最大金额"
+          @touchstart.native.stop="keyboardShow = true" style="flex: 1; height: 50px; "
+          label-width="80px" />
+      </van-cell-group>
+
       <van-divider :style="{ color: '#1989fa', }" content-position="left">筛选收藏</van-divider>
       <van-cell-group inset :border="false">
 
@@ -195,6 +207,8 @@
         </van-cell>
 
       </van-cell-group>
+
+
 
       <!--资金流向
       <van-divider :style="{ color: '#1989fa', }" content-position="left">资金流向</van-divider>
@@ -227,6 +241,7 @@
 
       </van-cell-group>
       -->
+      <!--操作选择
       <van-divider :style="{ color: '#1989fa', }" content-position="left">操作选择</van-divider>
 
       <van-cell-group inset :border="false">
@@ -240,6 +255,7 @@
         </van-checkbox-group>
 
       </van-cell-group>
+      -->
 
 
       <div style="margin-left: 15px;margin-right: 15px;margin-bottom:20px;border-radius: 8px">
@@ -345,6 +361,8 @@ export default {
       chooseTypes: [],//当前选择的分类
       chooseActions: [],//当前选择的操作
       useNote: false,//是否使用备注
+      minMoney: "",
+      maxMoney: "",
       note: "",//备注
       order: 0,//排序
 
@@ -427,10 +445,14 @@ export default {
           accountId: this.accountId,
           startDate: this.startDate,
           endDate: this.endDate,
+          minMoney:this.minMoney,
+          maxMoney:this.maxMoney,
           singleMonth: this.singleMonth,
           collect: this.collect,
           types: this.chooseTypes,
-          actions: this.chooseActions
+          actions: this.chooseActions,
+          note: this.note,
+          order: this.order
         }
       }).then(() => {
         this.excelName = ""
@@ -508,6 +530,8 @@ export default {
           accountId: this.accountId,
           startDate: this.startDate,
           endDate: this.endDate,
+          minMoney:this.minMoney,
+          maxMoney:this.maxMoney,
           singleMonth: this.singleMonth,
           collect: this.collect,
           types: this.chooseTypes,

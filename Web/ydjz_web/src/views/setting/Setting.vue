@@ -6,6 +6,7 @@
     <van-cell icon="exchange" title="收支" is-link to="/setting/action" />
     <van-cell icon="paid" title="账户" is-link to="/setting/account" />
     <van-cell icon="balance-list-o" title="分类" is-link to="/setting/type" />
+    <van-cell icon="exchange" title="周期记账" is-link to="/setting/cycle" />
     <van-cell icon="cluster-o" title="快记模板" is-link to="/setting/template" />
     <van-cell icon="paid" title="退出登录" @click="logout()" />
 

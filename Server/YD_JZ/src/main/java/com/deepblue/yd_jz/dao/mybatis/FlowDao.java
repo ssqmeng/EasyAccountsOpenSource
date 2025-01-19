@@ -51,7 +51,7 @@ public interface FlowDao {
     List<Map<String,Object>> getFlowByMain(@Param("handle") int handle,  int order, @Param("date") String date);
 
     @SelectProvider(type = FlowSelectProvider.class,method = "getFlowByScreen")
-    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth,boolean isCollect,String note,int order);
+    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth,boolean isCollect,String note,int order);
 
     @Delete("delete from flow where id = #{id}")
     void deleteFlowById(@Param("id") int id);

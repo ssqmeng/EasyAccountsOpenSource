@@ -51,6 +51,8 @@ public class ScreenService {
                 getBean.getAccountId(),
                 getBean.getStartDate().trim(),
                 getBean.getEndDate().trim(),
+                getBean.getMinMoney().trim(),
+                getBean.getMaxMoney().trim(),
                 getBean.isSingleMonth(),
                 getBean.isCollect(),getBean.getNote(),
                 getBean.getOrder());
@@ -177,7 +179,7 @@ public class ScreenService {
     public void makeScreenExcel(ScreenFlowRequestDto screenFlowRequestDto, String excelName) throws Exception {
         FlowListDto flowListDto = getFlowByScreen(screenFlowRequestDto);
         if (flowListDto.getFlows().size() == 0) {
-            throw new Exception("所选size 为0");
+            //hrow new Exception("所选size 为0");
         }
         ScreenExcelData excelBean = new ScreenExcelData();
         excelBean.setFlow(new ArrayList<>());
