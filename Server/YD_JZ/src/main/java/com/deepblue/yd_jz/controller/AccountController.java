@@ -61,7 +61,7 @@ public class AccountController {
     @GetMapping("/getAccountNoLimit")
     public BaseDto<List<AccountResponseDto>> getAllAccountNoLimit() {
         BaseDto<List<AccountResponseDto>> baseDto = BaseDto.setSuccessBean();
-        baseDto.setData(accountService.getAllAccountNoLimit());
+        baseDto.setData(accountService.getAllAccount());
         return baseDto;
     }
 

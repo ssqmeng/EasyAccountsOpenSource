@@ -1,45 +1,29 @@
 <template>
   <div>
-    <van-nav-bar
-      title="账号"
-      fixed placeholder
-      left-arrow
-      right-text="添加账号"
-      @click-left="onClickLeft"
-      @click-right="onClickRight"
-    >
+    <van-nav-bar title="账号" fixed placeholder left-arrow right-text="添加账号" @click-left="onClickLeft"
+      @click-right="onClickRight">
     </van-nav-bar>
     <!-- <van-empty description="暂无账号"></van-empty>-->
-    <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      :error.sync="error"
-      error-text="请求失败，点击重新加载"
-      @load="onLoad"
-    >
-      <van-cell
-        v-for="item in list"
-        :key="item.id"
-        :title="item.name"
-        is-link
-        @click="onItemClick(item)"
-      />
+    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" :error.sync="error" error-text="请求失败，点击重新加载"
+      @load="onLoad">
+      <van-cell v-for="item in list" :key="item.id" :title="item.name" is-link @click="onItemClick(item)" />
     </van-list>
 
-    <van-action-sheet
-      v-model="showPopup"
-      :title="chooseItem.name"
-      close-on-click-action
-    >
+    <van-action-sheet v-model="showPopup" :title="chooseItem.name" close-on-click-action>
       <van-cell-group>
         <van-cell title="账户余额" :value="chooseItem.money" />
-        <van-cell
-          title="豁免金额"
-          :value="chooseItem.exemptMoney"
-          label="此金额包含在账户余额中"
-        />
-        <van-cell title="卡号" :value="chooseItem.card" />
+        <van-cell title="豁免金额" :value="chooseItem.exemptMoney" label="此金额包含在账户余额中" />
+        <!--<van-cell title="" :value="chooseItem.card" />-->
+        <van-cell title="账户类型">
+          <template>
+            <van-radio-group :value="chooseItem.card" direction="horizontal">
+              <van-radio name="1">储蓄卡</van-radio>
+              <van-radio name="2" checked-color="#ee0a24">信用卡</van-radio>
+              <van-radio name="3">投资账户</van-radio>
+              <van-radio name="9">其他</van-radio>
+            </van-radio-group>
+          </template>
+        </van-cell>
         <van-cell title="账户备注" :value="chooseItem.note" />
       </van-cell-group>
       <div style="height: 10px; background: #f8f9fc" />
@@ -112,7 +96,7 @@ export default {
     onClickRight() {
       this.$router.push({ path: "/account/add" });
     },
-    onReload(){
+    onReload() {
       request({
         url: "/account/getAccount2",
         method: "get",

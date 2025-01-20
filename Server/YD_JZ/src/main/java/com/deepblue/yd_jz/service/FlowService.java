@@ -4,11 +4,8 @@ import com.deepblue.yd_jz.dto.FlowListDto;
 import com.deepblue.yd_jz.dto.FlowAddRequestDto;
 import com.deepblue.yd_jz.dto.FlowSingleResponseDto;
 import com.deepblue.yd_jz.dto.TypeListResponseDto;
-import com.deepblue.yd_jz.entity.Account;
-import com.deepblue.yd_jz.entity.Action;
-import com.deepblue.yd_jz.entity.Flow;
+import com.deepblue.yd_jz.entity.*;
 import com.deepblue.yd_jz.dao.mybatis.FlowDao;
-import com.deepblue.yd_jz.entity.Type;
 import com.deepblue.yd_jz.utils.ContentValues;
 import com.deepblue.yd_jz.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +91,45 @@ public class FlowService {
         flow.setExempt(action.isExempt());
         BeanUtils.copyProperties(flowAddRequestDto, flow);
         return flow;
+    }
+
+    public void setNewFlow(FlowCycleTemplate flowCycleTemplate) throws Exception {
+        Action action = actionService.getAction(flowCycleTemplate.getActionId());
+        Account account = accountService.getOriginAccountById(flowCycleTemplate.getAccountId() );
+        Account toAccount = null;
+        BigDecimal flowMoney = new BigDecimal(flowCycleTemplate.getMoney());
+        BigDecimal accountMoney = new BigDecimal(account.getMoney());
+        switch (action.getHandle()) {
+            case ContentValues.ACTION_ADD:
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_ADD, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+            case ContentValues.ACTION_SUB:
+                if (accountMoney.compareTo(flowMoney) < 0) {
+                    //throw new Exception("减少金额不允许大于账户金额");
+                }
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+            case ContentValues.ACTION_INNER:
+                if (accountMoney.compareTo(flowMoney) < 0) {
+                    //throw new Exception("减少金额不允许大于账户金额");
+                }
+                toAccount = accountService.getOriginAccountById(flowCycleTemplate.getAccountToId());
+                if(toAccount.getId()>1) {
+                    toAccount = handleAccount(ContentValues.ACTION_ADD, flowCycleTemplate.getMoney(), toAccount, action.isExempt());
+                    accountService.updateOriginAccount(toAccount);
+                }
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+        }
+        if(account.getId()>1) {
+            accountService.updateOriginAccount(account);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

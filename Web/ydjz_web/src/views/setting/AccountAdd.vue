@@ -21,6 +21,16 @@
       <!--
       <van-field v-model="card" label="银行卡号" placeholder="请输入银行卡号" />
       -->
+      <van-field label="账户类型" required>
+        <template #input>
+          <van-radio-group v-model="card" direction="vertical" required>
+            <van-radio name="1">储蓄卡</van-radio>
+            <van-radio name="2" style="margin-top: 10px" >信用卡</van-radio>
+            <van-radio name="3">投资账户</van-radio>
+            <van-radio name="9">其他</van-radio>
+          </van-radio-group>
+        </template>
+      </van-field>
       <van-field v-model="sortno" label="排序号" required placeholder="排序号" />
       <van-field v-model="note" rows="1" autosize label="账户备注" type="textarea" maxlength="50" placeholder="请输入备注" />
     </van-cell-group>

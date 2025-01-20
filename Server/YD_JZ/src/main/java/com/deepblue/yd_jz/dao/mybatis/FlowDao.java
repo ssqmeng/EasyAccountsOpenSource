@@ -1,6 +1,7 @@
 package com.deepblue.yd_jz.dao.mybatis;
 
 import com.deepblue.yd_jz.entity.Flow;
+import com.deepblue.yd_jz.entity.FlowCycleTemplate;
 import com.deepblue.yd_jz.entity.FlowType;
 import com.deepblue.yd_jz.entity.FlowYear;
 import org.apache.ibatis.annotations.*;
@@ -30,6 +31,23 @@ public interface FlowDao {
             "#{flow.accountToId}," +
             "#{flow.collect})")
     void addFlow(@Param("flow") Flow flow);
+
+    @Insert("insert into flow (" +
+            "f_date," +
+            "money," +
+            "type_id,action_id," +
+            "note," +
+            "f_create_date," +
+            "account_id," +
+            "account_to_id) values (" +
+            "#{fDate}," +
+            "#{flowCycleTemplate.money}," +
+            "#{flowCycleTemplate.typeId},#{flowCycleTemplate.actionId}," +
+            "#{flowCycleTemplate.name}," +
+            "#{fDate}," +
+            "#{flowCycleTemplate.accountId}," +
+            "#{flowCycleTemplate.accountToId})")
+    void addCycleFlow(@Param("flowCycleTemplate") FlowCycleTemplate flowCycleTemplate,@Param("fDate") String fDate);
 
     @Select("select * from flow  where id = #{id} ")
     List<Flow> queryFlowById(@Param("id") int id);

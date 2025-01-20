@@ -352,7 +352,6 @@ export default {
     },
 
     doGetNotString(flow){
-      debugger
       if (flow.note == null || flow.note == "") {
           return "无备注"
       } else if (flow.note.length>4){

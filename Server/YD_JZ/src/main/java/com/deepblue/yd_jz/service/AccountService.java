@@ -54,14 +54,35 @@ public class AccountService {
                 if (flowMoney.compareTo(BigDecimal.ZERO) != 0) {
                     FlowAddRequestDto flowAddRequestDto = new FlowAddRequestDto();
                     flowAddRequestDto.setAccountId(id);
-                    if (flowMoney.compareTo(BigDecimal.ZERO) > 0) {
-                        flowAddRequestDto.setActionId(15);//15-收入，16支出
-                        flowAddRequestDto.setMoney(flowMoney.toString());
-                    } else {
-                        flowAddRequestDto.setActionId(16);//15-收入，16支出
+                    if("1".equals(account.getCard())||"2".equals(account.getCard())) {
+                        //储蓄账户或信用卡
+                        flowAddRequestDto.setActionId(16);//16支出
+                        flowAddRequestDto.setTypeId(98);//日常支出-购物
                         flowAddRequestDto.setMoney(BigDecimal.ZERO.subtract(flowMoney).toString());
+                        //投资账户
+                        if (flowMoney.compareTo(BigDecimal.ZERO) > 0) {
+                            flowAddRequestDto.setNote("退款");
+                        } else {
+                            flowAddRequestDto.setNote("余额调整");
+                        }
+                    }else if("3".equals(account.getCard())) {
+                        //投资账户
+                        flowAddRequestDto.setActionId(15);//15-收入
+                        flowAddRequestDto.setTypeId(97);//日常收入-投资
+                        flowAddRequestDto.setMoney(flowMoney.toString());
+                        flowAddRequestDto.setNote("余额调整");
+                    }else{
+                        //其他账户
+                        if (flowMoney.compareTo(BigDecimal.ZERO) > 0) {
+                            flowAddRequestDto.setActionId(15);//15-收入，16支出
+                            flowAddRequestDto.setMoney(flowMoney.toString());
+                        } else {
+                            flowAddRequestDto.setActionId(16);//15-收入，16支出
+                            flowAddRequestDto.setMoney(BigDecimal.ZERO.subtract(flowMoney).toString());
+                        }
+                        flowAddRequestDto.setTypeId(128);//余额调整
+                        flowAddRequestDto.setNote("余额调整");
                     }
-                    flowAddRequestDto.setTypeId(128);//余额调整
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     String fDate = sdf.format(new Date());
                     flowAddRequestDto.setfDate(fDate);//流水日期
