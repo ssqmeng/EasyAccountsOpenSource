@@ -58,12 +58,19 @@ public class AccountService {
                         //储蓄账户或信用卡
                         flowAddRequestDto.setActionId(16);//16支出
                         flowAddRequestDto.setTypeId(98);//日常支出-购物
+
                         flowAddRequestDto.setMoney(BigDecimal.ZERO.subtract(flowMoney).toString());
                         //投资账户
                         if (flowMoney.compareTo(BigDecimal.ZERO) > 0) {
                             flowAddRequestDto.setNote("退款");
                         } else {
                             flowAddRequestDto.setNote("余额调整");
+                        }
+                        if(account.getId()==52)
+                        {
+                            //老婆招行
+                            flowAddRequestDto.setTypeId(136);//日常支出-家庭日常
+                            flowAddRequestDto.setNote("朴朴饿了么等");
                         }
                     }else if("3".equals(account.getCard())) {
                         //投资账户

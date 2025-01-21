@@ -20,6 +20,14 @@ public class HomeDto {
     private String yearBalance;
     private List<HomeAccountBean> accounts;
 
+    private List<HomeAccountBean> accounts1;//储蓄卡
+
+    private List<HomeAccountBean> accounts2;//信用卡
+
+    private List<HomeAccountBean> accounts3;//投资账户
+
+    private List<HomeAccountBean> accounts9;//其他账户
+
 
     @Data
     public static class HomeAccountBean {

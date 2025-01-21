@@ -29,7 +29,7 @@ public class FlowCycleTemplateRequestDto {
         flowCycleTemplate.setTypeId(this.typeId);
         flowCycleTemplate.setActionId(this.actionId);
         flowCycleTemplate.setAccountId(this.accountId);
-        flowCycleTemplate.setAccountToId(this.accountToId);
+        flowCycleTemplate.setAccountToId(this.accountToId==null?0:this.accountToId);
         return flowCycleTemplate;
     }
 }
