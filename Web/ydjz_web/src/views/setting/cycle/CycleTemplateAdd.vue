@@ -342,7 +342,7 @@ export default {
           this.doGetTypes()
         }
 
-        if (this.template.accountToId == null) {
+        if (this.template.accountToId == null || this.template.accountToId == 0) {
           this.chooseAccountTo = {}
         } else {
           this.chooseAccountTo = this.allAccounts.find((account) => account.id === this.template.accountToId);
