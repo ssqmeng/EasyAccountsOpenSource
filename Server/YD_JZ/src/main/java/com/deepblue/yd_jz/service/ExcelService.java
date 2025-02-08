@@ -77,7 +77,7 @@ public class ExcelService {
         calendar.set(Calendar.MONTH, month);
         date = calendar.getTime();
         String curDate = sdf.format(date) + "%";
-        List<Map<String, Object>> flows = flowDao.getFlowByMain(3, 0, curDate);
+        List<Map<String, Object>> flows = flowDao.getFlowByMain(3, 0, curDate,0,0);
         List<MonthExcelData.Flow> flowList = new ArrayList<>();
         BigDecimal moneyIn = new BigDecimal("0");
         BigDecimal moneyOut = new BigDecimal("0");

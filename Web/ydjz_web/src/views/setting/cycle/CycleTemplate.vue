@@ -5,6 +5,45 @@
     </van-nav-bar>
 
     <div v-if="allTemplates.length > 0">
+
+      <van-cell-group :border="false">
+      <div @click="onEditClick(template.id)" v-for="template in allTemplates" :key="template.id">
+        <van-swipe-cell >
+          <div style="
+            margin-left: 15px;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #4e4e4e;
+          "> 
+            {{ template.startDate }}   {{ template.cycleType }} 
+          </div>
+         
+
+          <van-cell size="small" :title="template.name" :value="'￥' + template.money" :label="template.account.name">
+            <template #label>
+              <div>
+                <label style="color: #676767; font-size: 13px; display: block;">{{ template.account.name }}</label>
+                <label v-if=" template.note && template.note.length > 0 "
+                  style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
+                    "备注：" + template.note
+                  }}</label>
+              </div>
+            </template> 
+            <template #default>
+              <div style="color: #000; font-size: 16px">￥{{ template.money }}</div>
+              <van-tag :type="template.action.style">{{ template.action.hname }}</van-tag>
+            </template>
+          </van-cell>
+          
+          <div style="height: 1px"></div>
+
+          <template #right>
+            <van-button square text="删除" type="danger" class="delete-button" @click="deleteTemplate(template)"/>
+          </template>
+        </van-swipe-cell>
+      </div>
+    </van-cell-group>
+<!--
       <van-cell-group inset :border="false" :style="{ marginTop: '10px' }" v-for="template in allTemplates"
         :key="template.id">
         <van-collapse :border="false" accordion v-model="template.show">
@@ -34,6 +73,7 @@
           </van-collapse-item>
         </van-collapse>
       </van-cell-group>
+      -->
     </div>
     <van-empty v-else description="当前无记录" />
   </div>
@@ -41,7 +81,7 @@
 
 <script>
 import request from "../../../utils/request";
-import { Toast } from "vant";
+import { Toast,Dialog } from "vant";
 
 export default {
   name: "FlowAuto.vue",
@@ -84,7 +124,7 @@ export default {
             template.action = this.setActionStyle(template.action);
           }
           if (template.cycleType != null) {
-            this.setCycleStyle(template.cycleType)
+            template.cycleType  = this.setCycleStyle(template.cycleType)
           } else {
             this.cycleTypeStr = "";
           }
@@ -109,12 +149,31 @@ export default {
       } else if (cycleType === 3) {
         this.cycleTypeStr = '每年'
       } else { this.cycleTypeStr = '' }
+      return this.cycleTypeStr
     },
 
     showLoading() {
       Toast.loading({
         message: '加载中...',
         forbidClick: true,
+      });
+    },
+    deleteTemplate(template) {
+      Dialog.confirm({
+        title: '确认',
+        message: '确定删除“' + template.name + '”吗？'
+      }).then(() => {
+        request({
+          url: "/cycle/deleteTemplate/" + template.id,
+          method: "delete",
+        }).then((response) => {
+          console.log(response);
+          this.$router.go("/setting/cycle");
+        }).catch((error) => {
+          console.log(error);
+        });
+      }).catch(() => {
+        // on cancel
       });
     },
   },
@@ -134,5 +193,9 @@ export default {
 .tag-item {
   margin-bottom: 5px;
   /* 增加标签下方的间隔，避免视觉上的拥挤 */
+}
+.delete-button {
+  height: 100%;
+  white-space: pre-wrap;
 }
 </style>

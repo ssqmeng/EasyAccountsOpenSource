@@ -16,6 +16,8 @@ public class ScreenFlowRequestDto {
     private boolean collect;
     private String note;
     private int order;
+    private int pageNum;
+    private int pageSize;
     private ArrayList<Integer> actions;
     private ArrayList<Integer> types;
 

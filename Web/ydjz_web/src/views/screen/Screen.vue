@@ -71,54 +71,57 @@
 
     <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 当期账单概览
     </van-divider>
-    <van-cell-group :border="false">
-      <div @click="toUpdateFlow(flow.id)" v-for="flow in flows" :key="flow.id">
-        <van-swipe-cell>
-          <template #left>
-            <van-button size="small" square color="#8c8c8c" type="primary" class="delete-button"
-              @click="doShowNote(flow)">
-              {{ doGetNotString(flow) }}
-            </van-button>
-          </template>
+    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" :error.sync="error" error-text="请求失败，点击重新加载"
+    @load="onLoad">
+      <van-cell-group :border="false">
+        <div @click="toUpdateFlow(flow.id)" v-for="flow in flows" :key="flow.id">
+          <van-swipe-cell>
+            <template #left>
+              <van-button size="small" square color="#8c8c8c" type="primary" class="delete-button"
+                @click="doShowNote(flow)">
+                {{ doGetNotString(flow) }}
+              </van-button>
+            </template>
 
-          <div style="
-            margin-left: 15px;
-            margin-top: 5px;
-            font-size: 11px;
-            color: #4e4e4e;">
-            {{ flow.fdate }}
-          </div>
-          <van-cell size="small" :title="flow.tname" :value="'￥' + flow.money" :label="flow.aname">
-            <template #label>
-              <div>
-                <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
-                <label v-if="flow.note && flow.note.length > 0"
-                  style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
-                    "备注：" + doGetNotString(flow)
-                  }}</label>
-              </div>
+            <div style="
+              margin-left: 15px;
+              margin-top: 5px;
+              font-size: 11px;
+              color: #4e4e4e;">
+              {{ flow.fdate }}
+            </div>
+            <van-cell size="small" :title="flow.tname" :value="'￥' + flow.money" :label="flow.aname">
+              <template #label>
+                <div>
+                  <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
+                  <label v-if="flow.note && flow.note.length > 0"
+                    style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
+                      "备注：" + doGetNotString(flow)
+                    }}</label>
+                </div>
+              </template>
+              <template #default>
+                <div style="color: #000; font-size: 16px">￥{{ flow.money }}</div>
+                <van-tag :type="flow.tagStyle">{{ flow.hname }}</van-tag>
+                <van-tag v-show="flow.exempt" style="margin-left: 10px" color="gray" plain type="action.style">不计入总金额
+                </van-tag>
+              </template>
+            </van-cell>
+            <div style="height: 1px"></div>
+            <template #right>
+              <van-button v-if="flow.collect" square type="warning" class="delete-button" @click="doCollectFlow(flow)">
+                取消<br>收藏
+              </van-button>
+              <van-button v-else type="primary" color="#1989fa" class="delete-button"
+                @click="doCollectFlow(flow)">收藏<br>账单
+              </van-button>
+              <van-button square text="删除" type="danger" class="delete-button" @click="doConfirmDeleteFlow(flow)" />
             </template>
-            <template #default>
-              <div style="color: #000; font-size: 16px">￥{{ flow.money }}</div>
-              <van-tag :type="flow.tagStyle">{{ flow.hname }}</van-tag>
-              <van-tag v-show="flow.exempt" style="margin-left: 10px" color="gray" plain type="action.style">不计入总金额
-              </van-tag>
-            </template>
-          </van-cell>
-          <div style="height: 1px"></div>
-          <template #right>
-            <van-button v-if="flow.collect" square type="warning" class="delete-button" @click="doCollectFlow(flow)">
-              取消<br>收藏
-            </van-button>
-            <van-button v-else type="primary" color="#1989fa" class="delete-button"
-              @click="doCollectFlow(flow)">收藏<br>账单
-            </van-button>
-            <van-button square text="删除" type="danger" class="delete-button" @click="doConfirmDeleteFlow(flow)" />
-          </template>
-        </van-swipe-cell>
-      </div>
-    </van-cell-group>
-    <van-empty v-show="flows.length == 0" description="当期无账单" />
+          </van-swipe-cell>
+        </div>
+      </van-cell-group>
+      <van-empty v-show="flows.length == 0" description="当期无账单" />
+    </van-list>
 
     <van-popup v-model="accountPopupShow" round position="bottom" :style="{ height: '50%' }">
       <van-radio-group v-model="accountId">
@@ -410,6 +413,12 @@ export default {
       chooseHandleActive: ['0'],
       chooseActionActive: ['0'],
       chooseTypeActive: ['0'],
+
+      loading: false,
+      finished: false,
+      error: false,
+      pageNum: 1,
+      pageSize: 20,
     }
   },
 
@@ -422,7 +431,7 @@ export default {
     this.doGetTypes()
     this.doGetActions()
     this.doGetAccounts()
-    this.doGetCurrentFlow()
+    //this.doGetCurrentFlow()
   },
 
   methods: {
@@ -521,7 +530,19 @@ export default {
         this.doGetCurrentFlow();
       });
     },
+
     doGetCurrentFlow() {
+      this.pageNum = 1;
+      this.flows = [];
+      this.total = 0;
+      this.sumQuantity = 0;
+      this.sumAmount = 0;
+      this.finished = false;
+      this.loading = true;      // 手动触发加载状态
+      this.onLoad();            // 调用加载方法
+    },
+
+    onLoad() {
       request({
         url: "/screen/getFlowByScreen",
         method: "post",
@@ -537,17 +558,14 @@ export default {
           types: this.chooseTypes,
           actions: this.chooseActions,
           note: this.note,
-          order: this.order
+          order: this.order,
+          pageNum:this.pageNum,
+          pageSize:this.pageSize
         }
       }).then((response) => {
-        console.log(response.data.data);
         const flow = response.data.data;
-        this.flows = response.data.data.flows;
-        this.totalIn = flow.totalIn;
-        this.totalOut = flow.totalOut;
-        this.totalEarn = flow.totalEarn;
-        this.allTypesMoney = flow.typeList;
-        this.flows.forEach((flow) => {
+        const baseData = response.data.data.flows;
+        baseData.forEach((flow) => {
           if (flow.handle === 0) {
             flow.handleName = "流入";
             flow.baseColor = "#4ae75a";
@@ -562,12 +580,31 @@ export default {
             flow.baseColor = "#39bdfa";
             flow.aname = flow.aname + "->" + flow.toAName
           }
-          if (this.handle === 3) {
-            this.detail = this.chooseMonth + "总收入： ￥" + this.totalIn + "  总支出： ￥" + this.totalOut;
-          }
           flow.dateSub = flow.fdate.substring(5, 10);
           flow.moneyNum = parseFloat(flow.money);
         });
+
+        if (baseData.length < this.pageSize) {
+          this.finished = true;  // 如果当前页数据少于 pageSize，则说明没有更多数据
+        }
+        // if (this.pageNum * this.pageSize == response.data.total) {
+        //   this.finished = true;
+        // }
+        if (this.pageNum === 1) {
+          this.flows = baseData;
+        } else {
+          this.flows = this.flows.concat(baseData); // 如果是第一页，覆盖列表；否则合并数据
+        }
+        this.pageNum++;  // 增加页码
+        this.loading = false;
+
+        this.totalIn = flow.totalIn;
+        this.totalOut = flow.totalOut;
+        var fEarn = parseFloat(this.totalIn) - parseFloat(this.totalOut);
+        this.totalEarn = fEarn.toFixed(2)
+        //this.totalEarn = flow.totalEarn;
+        this.allTypesMoney = flow.typeList;
+        
       })
       this.doSetCondition()
     },

@@ -277,13 +277,13 @@ public class FlowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public FlowListDto doGetMainBean(int handle, int order, String date) {
+    public FlowListDto doGetMainBean(int handle, int order, String date,int pageNum,int pageSize) {
         String monthStr = date.substring(0, 7) + "%";
         FlowListDto flowListDto = new FlowListDto();
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd_HHmm");
         String time = sdf1.format(new Date());
         log.info("time:  "+time+"   date: " + monthStr + "  handle: " + handle);
-        List<Map<String, Object>> maps = flowDao.getFlowByMain(handle, order, monthStr) ;
+        List<Map<String, Object>> maps = flowDao.getFlowByMain(handle, order, monthStr,pageNum,pageSize) ;
         List<FlowListDto.FlowListSingleDto> flows = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         BigDecimal moneyIn = new BigDecimal("0");
@@ -309,15 +309,18 @@ public class FlowService {
                 flow.setTName((String) map.get("t_name"));
             }
             flows.add(flow);
-            if (flow.getHandle() == 1) {
-                moneyOut = moneyOut.add(new BigDecimal(flow.getMoney()));
-            } else if (flow.getHandle() == 0) {
-                moneyIn = moneyIn.add(new BigDecimal(flow.getMoney()));
-            }
+//            if (flow.getHandle() == 1) {
+//                moneyOut = moneyOut.add(new BigDecimal(flow.getMoney()));
+//            } else if (flow.getHandle() == 0) {
+//                moneyIn = moneyIn.add(new BigDecimal(flow.getMoney()));
+//            }
         }
+        Map<String, Object> sumMap = flowDao.getFlowSum(handle, order, monthStr) ;
+//        moneyIn = (String) sumMap.get("moneyIn");
+//        moneyOut = new BigDecimal(sumMap.get("moneyOut"));
 
-        flowListDto.setTotalIn(moneyIn.toString());
-        flowListDto.setTotalOut(moneyOut.toString());
+        flowListDto.setTotalIn(sumMap.get("totalIn").toString());
+        flowListDto.setTotalOut(sumMap.get("totalOut").toString());
         flowListDto.setFlows(flows);
         return flowListDto;
     }
