@@ -383,7 +383,7 @@ export default {
             endQueryStr,
         method: "get"
       }).then((resp) => {
-        console.log(resp.data.data);
+        //console.log(resp.data.data);
         this.anadata = resp.data.data;
         this.yoyList = this.anadata.yoyList;
         if (this.yoyList.length !== 0) {
