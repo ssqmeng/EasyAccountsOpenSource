@@ -54,6 +54,7 @@ public class ScreenService {
                 getBean.getMinMoney().trim(),
                 getBean.getMaxMoney().trim(),
                 getBean.isSingleMonth(),
+                getBean.getTypes(),
                 getBean.isCollect(),getBean.getNote(),
                 getBean.getOrder(),
                 getBean.getPageNum(),
@@ -67,21 +68,21 @@ public class ScreenService {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Map<String, Object> map : maps) {
-            int typeId = (int) map.get("typeId");
-            int parentTypeId = map.get("parentTypeId") == null ? -1 : (int) map.get("parentTypeId");
-
-            int actionId = (int) map.get("actionId");
-            boolean currentDataCanUse = false;
-            if (!getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果不筛选类型和操作
-                currentDataCanUse = true;
-            } else if (getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果只筛选类型
-                currentDataCanUse = getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId);
-            } else if (!getBean.useTypeScreen() && getBean.useActionScreen()) {//如果只筛选操作
-                currentDataCanUse = getBean.getActions().contains(actionId);
-            } else if (getBean.useTypeScreen() && getBean.useActionScreen()) {//如果同时筛选类型和操作
-                currentDataCanUse = (getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId)) && getBean.getActions().contains(actionId);
-            }
-            if (currentDataCanUse) {
+//            int typeId = (int) map.get("typeId");
+//            int parentTypeId = map.get("parentTypeId") == null ? -1 : (int) map.get("parentTypeId");
+//
+//            int actionId = (int) map.get("actionId");
+//            boolean currentDataCanUse = false;
+//            if (!getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果不筛选类型和操作
+//                currentDataCanUse = true;
+//            } else if (getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果只筛选类型
+//                currentDataCanUse = getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId);
+//            } else if (!getBean.useTypeScreen() && getBean.useActionScreen()) {//如果只筛选操作
+//                currentDataCanUse = getBean.getActions().contains(actionId);
+//            } else if (getBean.useTypeScreen() && getBean.useActionScreen()) {//如果同时筛选类型和操作
+//                currentDataCanUse = (getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId)) && getBean.getActions().contains(actionId);
+//            }
+//            if (currentDataCanUse) {
                 FlowListDto.FlowListSingleDto innerBean = new FlowListDto.FlowListSingleDto();
                 innerBean.setId((Integer) map.get("id"));
                 innerBean.setMoney((String) map.get("money"));
@@ -107,7 +108,7 @@ public class ScreenService {
 //                }
 
 
-            }
+//            }
         }
 
         //分类汇总
@@ -118,6 +119,7 @@ public class ScreenService {
                 getBean.getMinMoney().trim(),
                 getBean.getMaxMoney().trim(),
                 getBean.isSingleMonth(),
+                getBean.getTypes(),
                 getBean.isCollect(),getBean.getNote(),
                 getBean.getOrder());
 
@@ -163,13 +165,18 @@ public class ScreenService {
                 getBean.getMinMoney().trim(),
                 getBean.getMaxMoney().trim(),
                 getBean.isSingleMonth(),
+                getBean.getTypes(),
                 getBean.isCollect(),getBean.getNote(),
                 getBean.getOrder());
 //        moneyIn = (String) sumMap.get("moneyIn");
 //        moneyOut = new BigDecimal(sumMap.get("moneyOut"));
-
-        baseBean.setTotalIn(sumMap.get("totalIn").toString());
-        baseBean.setTotalOut(sumMap.get("totalOut").toString());
+        if (sumMap != null) {
+            baseBean.setTotalIn(sumMap.get("totalIn").toString());
+            baseBean.setTotalOut(sumMap.get("totalOut").toString());
+        }else{
+            baseBean.setTotalIn("0");
+            baseBean.setTotalOut("0");
+        }
 
 //        totalEarn = moneyIn.subtract(moneyOut);
 //        baseBean.setTotalIn(moneyIn.toString());

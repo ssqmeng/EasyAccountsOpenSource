@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @Slf4j
@@ -134,8 +135,8 @@ public class FlowSelectProvider {
         return sql.toString();
     }*/
 
-    public String getFlowByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney,
-                                  boolean isSingleMonth, boolean isCollect, String note,int order,int pageNum,int pageSize) {
+    public String getFlowByScreen(int handle, int account, String startDate, String endDate, String minMoney, String maxMoney,
+                                  boolean isSingleMonth, ArrayList<Integer> types, boolean isCollect, String note, int order, int pageNum, int pageSize) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 "flow.id, flow.f_date AS flowDate, flow.money, flow.collect, flow.exempt, flow.note," +
                 "a.handle, a.h_name AS handleName, a.id AS actionId," +
@@ -177,6 +178,19 @@ public class FlowSelectProvider {
         if (isCollect) {
             sql.append(" AND flow.collect = 1 \n");
         }
+        if(types!=null && types.size()>0)
+        {
+            sql.append(" AND flow.type_id in ( " );
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    sql.append(types.get(i) + ",");
+                }else{
+                    sql.append(types.get(i) );
+                }
+            }
+
+            sql.append(" )  \n");
+        }
 
         if (note != null) {
             // Trim the note and check if it's not empty
@@ -202,7 +216,7 @@ public class FlowSelectProvider {
         return sql.toString();
     }
 
-    public String getFlowSumByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, boolean isCollect, String note,int order) {
+    public String getFlowSumByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, ArrayList<Integer> types, boolean isCollect, String note,int order) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 " ROUND(SUM(CASE WHEN a.handle = 1 THEN flow.money ELSE 0 END),2) AS totalOut,ROUND(SUM(CASE WHEN a.handle = 0 THEN flow.money ELSE 0 END),2) AS totalIn  \n");
         sql.append("FROM flow\n");
@@ -238,6 +252,20 @@ public class FlowSelectProvider {
             sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
         }
 
+        if(types!=null && types.size()>0)
+        {
+            sql.append(" AND flow.type_id in ( " );
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    sql.append(types.get(i) + ",");
+                }else{
+                    sql.append(types.get(i) );
+                }
+            }
+
+            sql.append(" )  \n");
+        }
+
         if (isCollect) {
             sql.append(" AND flow.collect = 1 \n");
         }
@@ -260,7 +288,8 @@ public class FlowSelectProvider {
     }
 
 
-    public String getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, boolean isCollect, String note,int order) {
+    public String getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth,
+                                 ArrayList<Integer> types, boolean isCollect, String note,int order) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 "t.t_name AS typeName, t.id AS typeId, t2.t_name AS parentTypeName, t2.id AS parentTypeId,ROUND(sum(flow.money),2) as typeSum\n");
         sql.append("FROM flow\n");
@@ -294,6 +323,20 @@ public class FlowSelectProvider {
 
         if (!"null".equals(maxMoney) && !"".equals(maxMoney)) {
             sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
+        }
+
+        if(types!=null && types.size()>0)
+        {
+            sql.append(" AND flow.type_id in ( " );
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    sql.append(types.get(i) + ",");
+                }else{
+                    sql.append(types.get(i) );
+                }
+            }
+
+            sql.append(" )  \n");
         }
 
         if (isCollect) {

@@ -7,6 +7,7 @@ import com.deepblue.yd_jz.entity.FlowYear;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,17 +74,17 @@ public interface FlowDao {
             , @Param("date") String date );
 
     @SelectProvider(type = FlowSelectProvider.class,method = "getFlowByScreen")
-    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney,
-                                             boolean isSingleMonth,boolean isCollect,String note,int order,int pageNum,int pageSize);
+    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate, String minMoney, String maxMoney,
+                                             boolean isSingleMonth, ArrayList<Integer> types,boolean isCollect, String note, int order, int pageNum, int pageSize);
 
 
     @SelectProvider(type = FlowSelectProvider.class,method = "getFlowSumByScreen")
     Map<String,Object> getFlowSumByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney,
-                                          boolean isSingleMonth,boolean isCollect,String note,int order);
+                                          boolean isSingleMonth,ArrayList<Integer> types,boolean isCollect,String note,int order);
 
 
     @SelectProvider(type = FlowSelectProvider.class,method = "getFlowTypeSum")
-    List<Map<String,Object>> getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, boolean isCollect, String note,int order);
+    List<Map<String,Object>> getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth,ArrayList<Integer> types, boolean isCollect, String note,int order);
 
     @Delete("delete from flow where id = #{id}")
     void deleteFlowById(@Param("id") int id);
