@@ -178,18 +178,19 @@ public class FlowSelectProvider {
         if (isCollect) {
             sql.append(" AND flow.collect = 1 \n");
         }
+
         if(types!=null && types.size()>0)
         {
-            sql.append(" AND flow.type_id in ( " );
+            StringBuilder typeStr =new StringBuilder("");
             for (int i=0;i<types.size();i++) {
                 if(i+1<types.size()) {
-                    sql.append(types.get(i) + ",");
+                    typeStr.append(types.get(i) + ",");
                 }else{
-                    sql.append(types.get(i) );
+                    typeStr.append(types.get(i) );
                 }
             }
 
-            sql.append(" )  \n");
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
         }
 
         if (note != null) {
@@ -254,16 +255,16 @@ public class FlowSelectProvider {
 
         if(types!=null && types.size()>0)
         {
-            sql.append(" AND flow.type_id in ( " );
+            StringBuilder typeStr =new StringBuilder("");
             for (int i=0;i<types.size();i++) {
                 if(i+1<types.size()) {
-                    sql.append(types.get(i) + ",");
+                    typeStr.append(types.get(i) + ",");
                 }else{
-                    sql.append(types.get(i) );
+                    typeStr.append(types.get(i) );
                 }
             }
 
-            sql.append(" )  \n");
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
         }
 
         if (isCollect) {
@@ -327,17 +328,18 @@ public class FlowSelectProvider {
 
         if(types!=null && types.size()>0)
         {
-            sql.append(" AND flow.type_id in ( " );
+            StringBuilder typeStr =new StringBuilder("");
             for (int i=0;i<types.size();i++) {
                 if(i+1<types.size()) {
-                    sql.append(types.get(i) + ",");
+                    typeStr.append(types.get(i) + ",");
                 }else{
-                    sql.append(types.get(i) );
+                    typeStr.append(types.get(i) );
                 }
             }
 
-            sql.append(" )  \n");
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
         }
+
 
         if (isCollect) {
             sql.append(" AND flow.collect = 1 \n");
