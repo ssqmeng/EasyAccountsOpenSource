@@ -1,11 +1,13 @@
 package com.deepblue.yd_jz.dao.mybatis;
 
 import com.deepblue.yd_jz.entity.Flow;
+import com.deepblue.yd_jz.entity.FlowCycleTemplate;
 import com.deepblue.yd_jz.entity.FlowType;
 import com.deepblue.yd_jz.entity.FlowYear;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,23 @@ public interface FlowDao {
             "#{flow.collect})")
     void addFlow(@Param("flow") Flow flow);
 
+    @Insert("insert into flow (" +
+            "f_date," +
+            "money," +
+            "type_id,action_id," +
+            "note," +
+            "f_create_date," +
+            "account_id," +
+            "account_to_id) values (" +
+            "#{fDate}," +
+            "#{flowCycleTemplate.money}," +
+            "#{flowCycleTemplate.typeId},#{flowCycleTemplate.actionId}," +
+            "#{flowCycleTemplate.name}," +
+            "#{fDate}," +
+            "#{flowCycleTemplate.accountId}," +
+            "#{flowCycleTemplate.accountToId})")
+    void addCycleFlow(@Param("flowCycleTemplate") FlowCycleTemplate flowCycleTemplate, @Param("fDate") String fDate);
+
     @Select("select * from flow  where id = #{id} ")
     List<Flow> queryFlowById(@Param("id") int id);
 
@@ -48,10 +67,25 @@ public interface FlowDao {
     void collectFlowById(@Param("id") int id,@Param("collect") int collect);
 
     @SelectProvider(type = FlowSelectProvider.class, method = "getFlowByMain")
-    List<Map<String,Object>> getFlowByMain(@Param("handle") int handle,  int order, @Param("date") String date);
+    List<Map<String,Object>> getFlowByMain(@Param("handle") int handle,  int order, @Param("date") String date,
+                                           @Param("pageNum")int pageNum,@Param("pageSize")int pageSize);
+
+    @SelectProvider(type = FlowSelectProvider.class, method = "getFlowSum")
+    Map<String,Object> getFlowSum(@Param("handle") int handle, int order
+            , @Param("date") String date );
 
     @SelectProvider(type = FlowSelectProvider.class,method = "getFlowByScreen")
-    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth,boolean isCollect,String note);
+    List<Map<String,Object>> getFlowByScreen(int handle, int account, String startDate, String endDate, String minMoney, String maxMoney,
+                                             boolean isSingleMonth, ArrayList<Integer> types, boolean isCollect, String note, int order, int pageNum, int pageSize);
+
+
+    @SelectProvider(type = FlowSelectProvider.class,method = "getFlowSumByScreen")
+    Map<String,Object> getFlowSumByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney,
+                                          boolean isSingleMonth,ArrayList<Integer> types,boolean isCollect,String note,int order);
+
+
+    @SelectProvider(type = FlowSelectProvider.class,method = "getFlowTypeSum")
+    List<Map<String,Object>> getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth,ArrayList<Integer> types, boolean isCollect, String note,int order);
 
     @Delete("delete from flow where id = #{id}")
     void deleteFlowById(@Param("id") int id);

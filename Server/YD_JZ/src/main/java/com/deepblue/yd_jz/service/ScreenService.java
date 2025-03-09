@@ -51,92 +51,137 @@ public class ScreenService {
                 getBean.getAccountId(),
                 getBean.getStartDate().trim(),
                 getBean.getEndDate().trim(),
+                getBean.getMinMoney().trim(),
+                getBean.getMaxMoney().trim(),
                 getBean.isSingleMonth(),
-                getBean.isCollect(),getBean.getNote());
+                getBean.getTypes(),
+                getBean.isCollect(),getBean.getNote(),
+                getBean.getOrder(),
+                getBean.getPageNum(),
+                getBean.getPageSize());
         FlowListDto baseBean = new FlowListDto();
         baseBean.setFlows(new ArrayList<>());
-        BigDecimal moneyIn = new BigDecimal("0");
-        BigDecimal moneyOut = new BigDecimal("0");
-        BigDecimal totalEarn = new BigDecimal("0");
+//        BigDecimal moneyIn = new BigDecimal("0");
+//        BigDecimal moneyOut = new BigDecimal("0");
+//        BigDecimal totalEarn = new BigDecimal("0");
         HashMap<Integer, TMapBean> flowTypeMap = new HashMap();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Map<String, Object> map : maps) {
-            int typeId = (int) map.get("typeId");
-            int parentTypeId = map.get("parentTypeId") == null ? -1 : (int) map.get("parentTypeId");
-
-            int actionId = (int) map.get("actionId");
-            boolean currentDataCanUse = false;
-            if (!getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果不筛选类型和操作
-                currentDataCanUse = true;
-            } else if (getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果只筛选类型
-                currentDataCanUse = getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId);
-            } else if (!getBean.useTypeScreen() && getBean.useActionScreen()) {//如果只筛选操作
-                currentDataCanUse = getBean.getActions().contains(actionId);
-            } else if (getBean.useTypeScreen() && getBean.useActionScreen()) {//如果同时筛选类型和操作
-                currentDataCanUse = (getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId)) && getBean.getActions().contains(actionId);
+//            int typeId = (int) map.get("typeId");
+//            int parentTypeId = map.get("parentTypeId") == null ? -1 : (int) map.get("parentTypeId");
+//
+//            int actionId = (int) map.get("actionId");
+//            boolean currentDataCanUse = false;
+//            if (!getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果不筛选类型和操作
+//                currentDataCanUse = true;
+//            } else if (getBean.useTypeScreen() && !getBean.useActionScreen()) {//如果只筛选类型
+//                currentDataCanUse = getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId);
+//            } else if (!getBean.useTypeScreen() && getBean.useActionScreen()) {//如果只筛选操作
+//                currentDataCanUse = getBean.getActions().contains(actionId);
+//            } else if (getBean.useTypeScreen() && getBean.useActionScreen()) {//如果同时筛选类型和操作
+//                currentDataCanUse = (getBean.getTypes().contains(typeId) || getBean.getTypes().contains(parentTypeId)) && getBean.getActions().contains(actionId);
+//            }
+//            if (currentDataCanUse) {
+            FlowListDto.FlowListSingleDto innerBean = new FlowListDto.FlowListSingleDto();
+            innerBean.setId((Integer) map.get("id"));
+            innerBean.setMoney((String) map.get("money"));
+            innerBean.setExempt((Boolean) map.get("exempt"));
+            innerBean.setCollect((Boolean) map.get("collect"));
+            innerBean.setHandle((Integer) map.get("handle"));
+            innerBean.setHName((String) map.get("handleName"));
+            innerBean.setNote((String) map.get("note"));
+            Date fDate = (Date) map.get("flowDate");
+            innerBean.setFDate(sdf.format(fDate));
+            innerBean.setAName((String) map.get("accountName"));
+            innerBean.setToAName((String) map.get("toAccountName"));
+            if (map.get("parentTypeName") != null) {
+                innerBean.setTName(map.get("parentTypeName") + "/" + map.get("typeName"));
+            } else {
+                innerBean.setTName((String) map.get("typeName"));
             }
-            if (currentDataCanUse) {
-                FlowListDto.FlowListSingleDto innerBean = new FlowListDto.FlowListSingleDto();
-                innerBean.setId((Integer) map.get("id"));
-                innerBean.setMoney((String) map.get("money"));
-                innerBean.setExempt((Boolean) map.get("exempt"));
-                innerBean.setCollect((Boolean) map.get("collect"));
-                innerBean.setHandle((Integer) map.get("handle"));
-                innerBean.setHName((String) map.get("handleName"));
-                innerBean.setNote((String) map.get("note"));
-                Date fDate = (Date) map.get("flowDate");
-                innerBean.setFDate(sdf.format(fDate));
-                innerBean.setAName((String) map.get("accountName"));
-                innerBean.setToAName((String) map.get("toAccountName"));
-                if (map.get("parentTypeName") != null) {
-                    innerBean.setTName(map.get("parentTypeName") + "/" + map.get("typeName"));
-                } else {
-                    innerBean.setTName((String) map.get("typeName"));
-                }
-                baseBean.getFlows().add(innerBean);
-                if (innerBean.getHandle() == 1) {
-                    moneyOut = moneyOut.add(new BigDecimal(innerBean.getMoney()));
-                } else if (innerBean.getHandle() == 0) {
-                    moneyIn = moneyIn.add(new BigDecimal(innerBean.getMoney()));
-                }
+            baseBean.getFlows().add(innerBean);
+//                if (innerBean.getHandle() == 1) {
+//                    moneyOut = moneyOut.add(new BigDecimal(innerBean.getMoney()));
+//                } else if (innerBean.getHandle() == 0) {
+//                    moneyIn = moneyIn.add(new BigDecimal(innerBean.getMoney()));
+//                }
 
-                if (flowTypeMap.get(typeId) == null) {//如果当前type对象为空
-                    TMapBean tMapBean = new TMapBean();
-                    tMapBean.setTypeId(typeId);
-                    tMapBean.setTypeName((String) map.get("typeName"));
-                    BigDecimal bigDecimal = new BigDecimal(innerBean.getMoney());
-                    tMapBean.setMoneyDeci(bigDecimal);
-                    tMapBean.setParent(parentTypeId == -1);
-                    tMapBean.setParentId(parentTypeId);
-                    flowTypeMap.put(typeId, tMapBean);
-                    if (parentTypeId != -1 && flowTypeMap.get(parentTypeId) == null) {//如果当前对象不是一级分类  &&  父类对象为空
-                        TMapBean parentBean = new TMapBean();
-                        parentBean.setTypeId(parentTypeId);
-                        parentBean.setTypeName((String) map.get("parentTypeName"));
-                        BigDecimal parentDecimal = new BigDecimal(innerBean.getMoney());
-                        parentBean.setMoneyDeci(parentDecimal);
-                        parentBean.setParent(true);
-                        flowTypeMap.put(parentTypeId, parentBean);
-                    } else if (parentTypeId != -1 && flowTypeMap.get(parentTypeId) != null) {//如果当前对象不是一级分类  &&  父类对象不为空
-                        BigDecimal result = flowTypeMap.get(parentTypeId).getMoneyDeci().add(new BigDecimal(innerBean.getMoney()));
-                        flowTypeMap.get(parentTypeId).setMoneyDeci(result);
-                    }
-                } else {//如果不为空的话 则取出并加上当前金额
-                    BigDecimal resultChild = flowTypeMap.get(typeId).getMoneyDeci().add(new BigDecimal(innerBean.getMoney()));
-                    flowTypeMap.get(typeId).setMoneyDeci(resultChild);
-                    if (parentTypeId != -1) { //如果当前不是子分类的话 夫分类得加金额
-                        BigDecimal resultParent= flowTypeMap.get(parentTypeId).getMoneyDeci().add(new BigDecimal(innerBean.getMoney()));
-                        flowTypeMap.get(parentTypeId).setMoneyDeci(resultParent);
-                    }
+
+//            }
+        }
+
+        //分类汇总
+        List<Map<String, Object>> typeMaps = flowDao.getFlowTypeSum(getBean.getChooseHandle(),
+                getBean.getAccountId(),
+                getBean.getStartDate().trim(),
+                getBean.getEndDate().trim(),
+                getBean.getMinMoney().trim(),
+                getBean.getMaxMoney().trim(),
+                getBean.isSingleMonth(),
+                getBean.getTypes(),
+                getBean.isCollect(),getBean.getNote(),
+                getBean.getOrder());
+
+        for (Map<String, Object> typeMap : typeMaps) {
+            int typeId = (int) typeMap.get("typeId");
+            int parentTypeId = typeMap.get("parentTypeId") == null ? -1 : (int) typeMap.get("parentTypeId");
+            BigDecimal bigDecimal = new BigDecimal(typeMap.get("typeSum").toString());
+            if (flowTypeMap.get(typeId) == null) {//如果当前type对象为空
+                TMapBean tMapBean = new TMapBean();
+                tMapBean.setTypeId(typeId);
+                tMapBean.setTypeName((String) typeMap.get("typeName"));
+                tMapBean.setMoneyDeci(bigDecimal);
+                tMapBean.setParent(parentTypeId == -1);
+                tMapBean.setParentId(parentTypeId);
+                flowTypeMap.put(typeId, tMapBean);
+                if (parentTypeId != -1 && flowTypeMap.get(parentTypeId) == null) {//如果当前对象不是一级分类  &&  父类对象为空
+                    TMapBean parentBean = new TMapBean();
+                    parentBean.setTypeId(parentTypeId);
+                    parentBean.setTypeName((String) typeMap.get("parentTypeName"));
+                    parentBean.setMoneyDeci(bigDecimal);
+                    parentBean.setParent(true);
+                    flowTypeMap.put(parentTypeId, parentBean);
+                } else if (parentTypeId != -1 && flowTypeMap.get(parentTypeId) != null) {//如果当前对象不是一级分类  &&  父类对象不为空
+                    BigDecimal result = flowTypeMap.get(parentTypeId).getMoneyDeci().add(bigDecimal);
+                    flowTypeMap.get(parentTypeId).setMoneyDeci(result);
+                }
+            } else {//如果不为空的话 则取出并加上当前金额
+                BigDecimal resultChild = flowTypeMap.get(typeId).getMoneyDeci().add(bigDecimal);
+                flowTypeMap.get(typeId).setMoneyDeci(resultChild);
+                if (parentTypeId != -1) { //如果当前不是子分类的话 夫分类的加金额
+                    BigDecimal resultParent= flowTypeMap.get(parentTypeId).getMoneyDeci().add(bigDecimal);
+                    flowTypeMap.get(parentTypeId).setMoneyDeci(resultParent);
                 }
             }
         }
         baseBean.setTypeList(exChangeMapToList(flowTypeMap));
-        totalEarn = moneyIn.subtract(moneyOut);
-        baseBean.setTotalIn(moneyIn.toString());
-        baseBean.setTotalOut(moneyOut.toString());
-        baseBean.setTotalEarn(totalEarn.toString());
+
+        //计算总收入及支出
+        Map<String, Object> sumMap = flowDao.getFlowSumByScreen(getBean.getChooseHandle(),
+                getBean.getAccountId(),
+                getBean.getStartDate().trim(),
+                getBean.getEndDate().trim(),
+                getBean.getMinMoney().trim(),
+                getBean.getMaxMoney().trim(),
+                getBean.isSingleMonth(),
+                getBean.getTypes(),
+                getBean.isCollect(),getBean.getNote(),
+                getBean.getOrder());
+//        moneyIn = (String) sumMap.get("moneyIn");
+//        moneyOut = new BigDecimal(sumMap.get("moneyOut"));
+        if (sumMap != null) {
+            baseBean.setTotalIn(sumMap.get("totalIn").toString());
+            baseBean.setTotalOut(sumMap.get("totalOut").toString());
+        }else{
+            baseBean.setTotalIn("0");
+            baseBean.setTotalOut("0");
+        }
+
+//        totalEarn = moneyIn.subtract(moneyOut);
+//        baseBean.setTotalIn(moneyIn.toString());
+//        baseBean.setTotalOut(moneyOut.toString());
+//        baseBean.setTotalEarn(totalEarn.toString());
         return baseBean;
     }
 
@@ -192,6 +237,7 @@ public class ScreenService {
         });
         excelBean.setTotalIn(flowListDto.getTotalIn());
         excelBean.setTotalOut(flowListDto.getTotalOut());
+        excelBean.setTotalEarn(new BigDecimal(flowListDto.getTotalIn()).subtract(new BigDecimal(flowListDto.getTotalOut())).toString());
         excelBean.setDate(screenFlowRequestDto.getStartDate() + " 至 " + screenFlowRequestDto.getEndDate());
         excelBean.setName(excelName);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");

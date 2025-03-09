@@ -9,6 +9,7 @@ public class FlowTemplateRequestDto {
     private String name;
     private Integer dateType;
     private String money;
+    private String note;
     private Integer typeId;
     private Integer actionId;
     private Integer accountId;
@@ -21,6 +22,7 @@ public class FlowTemplateRequestDto {
         flowTemplate.setName(this.name);
         flowTemplate.setDateType(this.dateType);
         flowTemplate.setMoney(this.money);
+        flowTemplate.setNote(this.note);
         flowTemplate.setTypeId(this.typeId);
         flowTemplate.setActionId(this.actionId);
         flowTemplate.setAccountId(this.accountId);

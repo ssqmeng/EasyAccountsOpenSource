@@ -10,3 +10,5 @@ upload-image.sh
 /.idea/modules.xml
 /.idea/uiDesigner.xml
 /.idea/vcs.xml
+/Web/ydjz_web/node_modules2/
+/Web/ydjz_web/package-lock2.json

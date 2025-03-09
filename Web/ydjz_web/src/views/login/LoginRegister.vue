@@ -10,7 +10,7 @@
             fit="contain"
             :src="logoUrl"
         />
-        <span class="title">EasyAccounts</span>
+        <span class="title">简单记账</span>
       </div>
       <!-- 下一行：副标题 -->
       <p class="subtitle">Live slow, track flow.</p>

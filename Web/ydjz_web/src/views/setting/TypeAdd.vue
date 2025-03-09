@@ -49,6 +49,8 @@
         </template>
       </van-cell>
 
+      <van-field v-model="sortno" label="排序号" required placeholder="排序号" />
+
       <van-cell title="不参与统计" >
         <template #default>
           <van-switch v-model="analysisDisable" />
@@ -147,6 +149,7 @@ export default {
       chooseName: "",
       chooseId: 0,
       curParent: -1,
+      sortno: "",
       analysisDisable: false,
       canEditAction: true,
     };
@@ -229,6 +232,7 @@ export default {
         console.log(response);
         this.tname = response.data.data.tname;
         this.curParent = response.data.data.parent;
+        this.sortno = response.data.data.sortno;
         this.analysisDisable = response.data.data.analysisDisable;
         if (response.data.data.action !== null) {
           this.action = response.data.data.action;
@@ -279,6 +283,7 @@ export default {
                 tname: this.tname,
                 parent: this.chooseType.id,
                 actionId: this.action.id,
+                sortno: this.sortno,
                 analysisDisable: this.analysisDisable,
               },
             })
@@ -369,6 +374,7 @@ export default {
           tname: this.tname,
           parent: this.chooseType.id,
           actionId: this.action.id,
+          sortno: this.sortno,
           analysisDisable: this.analysisDisable,
         },
       })

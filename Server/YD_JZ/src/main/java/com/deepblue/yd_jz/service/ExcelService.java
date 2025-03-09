@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.CellData;
 import com.alibaba.excel.metadata.Head;
+import com.alibaba.excel.util.StringUtils;
 import com.alibaba.excel.write.handler.CellWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
@@ -78,7 +79,7 @@ public class ExcelService {
         calendar.set(Calendar.MONTH, month);
         date = calendar.getTime();
         String curDate = sdf.format(date) + "%";
-        List<Map<String, Object>> flows = flowDao.getFlowByMain(3, 0, curDate);
+        List<Map<String, Object>> flows = flowDao.getFlowByMain(3, 0, curDate,0,0);
         List<MonthExcelData.Flow> flowList = new ArrayList<>();
         BigDecimal moneyIn = new BigDecimal("0");
         BigDecimal moneyOut = new BigDecimal("0");
@@ -123,9 +124,16 @@ public class ExcelService {
         BigDecimal totalAsset = new BigDecimal("0");
         for (Account a : accounts) {
             MonthExcelData.Account excelA = new MonthExcelData.Account();
-            excelA.setAccountMoney(a.getMoney());
             excelA.setAccountName(a.getAName());
-            totalAsset = totalAsset.add(new BigDecimal(a.getMoney()));
+//            excelA.setAccountMoney(a.getMoney());
+//            totalAsset = totalAsset.add(new BigDecimal(a.getMoney()));
+            if(StringUtils.isEmpty(a.getExemptMoney())) {
+                excelA.setAccountMoney(a.getMoney());
+                totalAsset = totalAsset.add(new BigDecimal(a.getMoney()));
+            }else{
+                excelA.setAccountMoney(new BigDecimal(a.getMoney()).subtract(new BigDecimal(a.getExemptMoney())).toString());
+                totalAsset = totalAsset.add(new BigDecimal(a.getMoney())).subtract(new BigDecimal(a.getExemptMoney()));
+            }
             excelAccounts.add(excelA);
         }
         monthExcelData.setExcelAccounts(excelAccounts);

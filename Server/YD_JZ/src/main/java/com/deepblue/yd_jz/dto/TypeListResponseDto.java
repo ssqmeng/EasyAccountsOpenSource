@@ -23,6 +23,8 @@ public class TypeListResponseDto {
 
     private Action action;  // Entity relationship
 
+    private String sortno;
+
     private Boolean analysisDisable=false;  // Default is false
 
     public TypeListResponseDto convertToDto(Type type) {
@@ -44,6 +46,7 @@ public class TypeListResponseDto {
         typeListResponseDto.setHasChild(type.getHasChild());
         typeListResponseDto.setArchive(type.getArchive());
         typeListResponseDto.setAction(type.getAction());
+        typeListResponseDto.setSortno(type.getSortno());
         typeListResponseDto.setAnalysisDisable(type.getAnalysisDisable());
         return typeListResponseDto;
     }

@@ -29,6 +29,7 @@ public class TypeService {
         type.setParent(typeSingleDto.getParent());
         type.setParent(typeSingleDto.getParent() == null ? -1 : typeSingleDto.getParent());
         type.setActionId(typeSingleDto.getActionId());
+        type.setSortno(typeSingleDto.getSortno());
         type.setAnalysisDisable(typeSingleDto.getAnalysisDisable());
         typeRepository.save(type);
     }
@@ -38,6 +39,7 @@ public class TypeService {
         Type type = new Type();
         type.setId(typeSingleDto.getId());
         type.setTName(typeSingleDto.getTName());
+        type.setSortno(typeSingleDto.getSortno());
         type.setAnalysisDisable(typeSingleDto.getAnalysisDisable());
         if (typeSingleDto.getParent() == null) {
             type.setParent(-1);

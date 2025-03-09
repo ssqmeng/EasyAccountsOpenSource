@@ -39,7 +39,16 @@
           :value="chooseItem.exemptMoney"
           label="此金额包含在账户余额中"
         />
-        <van-cell title="卡号" :value="chooseItem.card" />
+        <van-cell title="账户类型">
+          <template #default>
+            <van-radio-group v-model="chooseItem.card" direction="horizontal" disabled>
+              <van-radio name="1">储蓄卡</van-radio>
+              <van-radio name="2" checked-color="#ee0a24">信用卡</van-radio>
+              <van-radio name="3">投资账户</van-radio>
+              <van-radio name="9">其他</van-radio>
+            </van-radio-group>
+          </template>
+        </van-cell>
         <van-cell title="账户备注" :value="chooseItem.note" />
       </van-cell-group>
       <div style="height: 10px; background: #f8f9fc" />
@@ -99,7 +108,7 @@ export default {
         this.chooseItem.exemptMoney = "未设置豁免金额";
       }
       if (item.card === "") {
-        this.chooseItem.card = "未设置账户卡号";
+        this.chooseItem.card = "9";
       }
       if (item.note === "" || item.note == null) {
         this.chooseItem.note = "暂无备注";
@@ -113,7 +122,7 @@ export default {
     },
     onReload(){
       this.$http({
-        url: "/account/getAccount",
+        url: "/account/getAccount2",
         method: "get",
       })
         .then((response) => {
@@ -137,7 +146,7 @@ export default {
     },
     onLoad() {
       this.$http({
-        url: "/account/getAccount",
+        url: "/account/getAccount2",
         method: "get",
       })
         .then((response) => {

@@ -29,6 +29,11 @@
           label="模板金额"
           placeholder="请输入模板金额"
       />
+      <van-field 
+        input-align="right" 
+        v-model="template.note" 
+        label="模板备注" 
+        placeholder="请输入模板备注" />
     </van-cell-group>
     <van-cell-group :border="false" inset :style="{marginTop:'20px'}">
       <van-cell title="选择模板收支" is-link @click="onActionClick">
@@ -183,6 +188,7 @@ export default {
         id: "",
         name: "",
         money: "",
+        note: "",
         actionId: "",
         accountId: "",
         accountToId: "",
@@ -290,6 +296,7 @@ export default {
           id: this.isEdit ? this.template.id : null,
           name: this.template.name,
           money: this.template.money,
+          note: this.template.note,
           actionId: this.chooseAction.id,
           accountId: this.chooseAccount.id,
           accountToId: this.chooseAccountTo.id,

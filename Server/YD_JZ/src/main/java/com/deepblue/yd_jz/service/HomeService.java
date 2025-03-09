@@ -63,7 +63,8 @@ public class HomeService {
     public HomeDto setAccountsBean(HomeDto homeDto) {
         BigDecimal totalAsset = new BigDecimal("0");
         BigDecimal exemptAsset = new BigDecimal("0");
-        List<Account> accounts = accountDao.findByDisableFalse();
+        List<Account> accounts = accountDao.queryAllAccount();
+        BigDecimal cardAsset = new BigDecimal("0");//信用卡余额
         for (Account account : accounts) {
             BigDecimal accountAsset = new BigDecimal(account.getMoney());
             String exemptStr = account.getExemptMoney();
@@ -73,11 +74,20 @@ public class HomeService {
             BigDecimal exemptAccountAsset = new BigDecimal(exemptStr);
             totalAsset = totalAsset.add(accountAsset);
             exemptAsset = exemptAsset.add(exemptAccountAsset);
+            if(!"0".equals(exemptStr))
+            {
+                cardAsset=cardAsset.add(exemptAccountAsset).subtract(accountAsset);//信用卡账单=额度金额-额度余额
+            }
         }
-        homeDto.setTotalAsset(totalAsset.toString());
+        homeDto.setTotalAsset(totalAsset.subtract(exemptAsset).add(cardAsset).toString());
         homeDto.setNetAsset(totalAsset.subtract(exemptAsset).toString());
+        homeDto.setCardAsset(cardAsset.toString());
         NumberFormat nf = NumberFormat.getPercentInstance();
         List<HomeDto.HomeAccountBean> homeAccounts = new ArrayList<>();
+        List<HomeDto.HomeAccountBean> homeAccounts1 = new ArrayList<>();
+        List<HomeDto.HomeAccountBean> homeAccounts2 = new ArrayList<>();
+        List<HomeDto.HomeAccountBean> homeAccounts3 = new ArrayList<>();
+        List<HomeDto.HomeAccountBean> homeAccounts9 = new ArrayList<>();
         for (Account account : accounts) {
             HomeDto.HomeAccountBean hab = new HomeDto.HomeAccountBean();
             hab.setId(account.getId());
@@ -91,8 +101,16 @@ public class HomeService {
             String percentStr = nf.format(percent.doubleValue());
             hab.setPercent(percentStr.substring(0, percentStr.length() - 1));
             homeAccounts.add(hab);
+            if("1".equals(account.getCard())){homeAccounts1.add(hab);}
+            else if("2".equals(account.getCard())){homeAccounts2.add(hab);}
+            else if("3".equals(account.getCard())){homeAccounts3.add(hab);}
+            else if("9".equals(account.getCard())){homeAccounts9.add(hab);}
         }
         homeDto.setAccounts(homeAccounts);
+        homeDto.setAccounts1(homeAccounts1);
+        homeDto.setAccounts2(homeAccounts2);
+        homeDto.setAccounts3(homeAccounts3);
+        homeDto.setAccounts9(homeAccounts9);
         return homeDto;
     }
 

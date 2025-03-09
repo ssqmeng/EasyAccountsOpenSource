@@ -4,11 +4,8 @@ import com.deepblue.yd_jz.dto.FlowListDto;
 import com.deepblue.yd_jz.dto.FlowAddRequestDto;
 import com.deepblue.yd_jz.dto.FlowSingleResponseDto;
 import com.deepblue.yd_jz.dto.TypeListResponseDto;
-import com.deepblue.yd_jz.entity.Account;
-import com.deepblue.yd_jz.entity.Action;
-import com.deepblue.yd_jz.entity.Flow;
+import com.deepblue.yd_jz.entity.*;
 import com.deepblue.yd_jz.dao.mybatis.FlowDao;
-import com.deepblue.yd_jz.entity.Type;
 import com.deepblue.yd_jz.utils.ContentValues;
 import com.deepblue.yd_jz.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -65,13 +62,13 @@ public class FlowService {
                 break;
             case ContentValues.ACTION_SUB:
                 if (accountMoney.compareTo(flowMoney) < 0) {
-                    throw new Exception("减少金额不允许大于账户金额");
+                    //throw new Exception("减少金额不允许大于账户金额");
                 }
                 account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
                 break;
             case ContentValues.ACTION_INNER:
                 if (accountMoney.compareTo(flowMoney) < 0) {
-                    throw new Exception("减少金额不允许大于账户金额");
+                    //throw new Exception("减少金额不允许大于账户金额");
                 }
                 toAccount = accountService.getOriginAccountById(flowAddRequestDto.getAccountToId());
                 toAccount = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), toAccount, action.isExempt());
@@ -85,6 +82,46 @@ public class FlowService {
         flow.setExempt(action.isExempt());
         BeanUtils.copyProperties(flowAddRequestDto, flow);
         return flow;
+    }
+
+
+    public void setNewFlow(FlowCycleTemplate flowCycleTemplate) throws Exception {
+        Action action = actionService.getAction(flowCycleTemplate.getActionId());
+        Account account = accountService.getOriginAccountById(flowCycleTemplate.getAccountId() );
+        Account toAccount = null;
+        BigDecimal flowMoney = new BigDecimal(flowCycleTemplate.getMoney());
+        BigDecimal accountMoney = new BigDecimal(account.getMoney());
+        switch (action.getHandle()) {
+            case ContentValues.ACTION_ADD:
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_ADD, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+            case ContentValues.ACTION_SUB:
+                if (accountMoney.compareTo(flowMoney) < 0) {
+                    //throw new Exception("减少金额不允许大于账户金额");
+                }
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+            case ContentValues.ACTION_INNER:
+                if (accountMoney.compareTo(flowMoney) < 0) {
+                    //throw new Exception("减少金额不允许大于账户金额");
+                }
+                toAccount = accountService.getOriginAccountById(flowCycleTemplate.getAccountToId());
+                if(toAccount.getId()>1) {
+                    toAccount = handleAccount(ContentValues.ACTION_ADD, flowCycleTemplate.getMoney(), toAccount, action.isExempt());
+                    accountService.updateOriginAccount(toAccount);
+                }
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowCycleTemplate.getMoney(), account, action.isExempt());
+                }
+                break;
+        }
+        if(account.getId()>1) {
+            accountService.updateOriginAccount(account);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -213,17 +250,15 @@ public class FlowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public FlowListDto doGetMainBean(int handle, int order, String date) {
+    public FlowListDto doGetMainBean(int handle, int order, String date,int pageNum,int pageSize) {
         String monthStr = date.substring(0, 7) + "%";
         FlowListDto flowListDto = new FlowListDto();
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd_HHmm");
         String time = sdf1.format(new Date());
         log.info("time:  "+time+"   date: " + monthStr + "  handle: " + handle);
-        List<Map<String, Object>> maps = flowDao.getFlowByMain(handle, order, monthStr) ;
+        List<Map<String, Object>> maps = flowDao.getFlowByMain(handle, order, monthStr,pageNum,pageSize) ;
         List<FlowListDto.FlowListSingleDto> flows = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        BigDecimal moneyIn = new BigDecimal("0");
-        BigDecimal moneyOut = new BigDecimal("0");
         for (Map<String, Object> map : maps) {
             FlowListDto.FlowListSingleDto flow = new FlowListDto.FlowListSingleDto();
             flow.setId((Integer) map.get("id"));
@@ -245,15 +280,17 @@ public class FlowService {
                 flow.setTName((String) map.get("t_name"));
             }
             flows.add(flow);
-            if (flow.getHandle() == 1) {
-                moneyOut = moneyOut.add(new BigDecimal(flow.getMoney()));
-            } else if (flow.getHandle() == 0) {
-                moneyIn = moneyIn.add(new BigDecimal(flow.getMoney()));
-            }
+//            if (flow.getHandle() == 1) {
+//                moneyOut = moneyOut.add(new BigDecimal(flow.getMoney()));
+//            } else if (flow.getHandle() == 0) {
+//                moneyIn = moneyIn.add(new BigDecimal(flow.getMoney()));
+//            }
         }
 
-        flowListDto.setTotalIn(moneyIn.toString());
-        flowListDto.setTotalOut(moneyOut.toString());
+        Map<String, Object> sumMap = flowDao.getFlowSum(handle, order, monthStr) ;
+
+        flowListDto.setTotalIn(sumMap.get("totalIn").toString());
+        flowListDto.setTotalOut(sumMap.get("totalOut").toString());
         flowListDto.setFlows(flows);
         return flowListDto;
     }

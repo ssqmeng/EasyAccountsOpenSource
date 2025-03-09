@@ -136,14 +136,34 @@
       />
     </van-popup>
 
+    <!-- <van-popup v-model:show="showCharts" position="top" :style="{ width: '100%' ,background:'#F7F8FA' }">
+      <van-nav-bar fixed placeholder title="查看图表">
+        <template #right>
+          <van-icon name="cross" size="18" @click="()=>{showCharts = false}"/>
+        </template>
+      </van-nav-bar>
+     <ApexChart  type="treemap" :options="treeChartOptions" :series="treeseries" style="margin-top: 20px;margin-left: 10px;margin-right: 10px;margin-bottom: 20px"></ApexChart>
+      <ApexChart type="donut" :options="donutChartOptions" :series="donutseries" style="margin: 20px 10px"></ApexChart>
+     柱状图 <ApexChart type="bar" :options="barChartOptions" :series="barseries" style="margin: 20px 10px"></ApexChart>
+    </van-popup>-->
     <van-popup v-model:show="showCharts" position="top" :style="{ width: '100%' ,background:'#F7F8FA' }">
       <van-nav-bar fixed placeholder title="查看图表">
         <template #right>
           <van-icon name="cross" size="18" @click="()=>{showCharts = false}"/>
         </template>
       </van-nav-bar>
-      <ApexChart  type="treemap" :options="treeChartOptions" :series="treeseries" style="margin-top: 20px;margin-left: 10px;margin-right: 10px;margin-bottom: 20px"></ApexChart>
-<!--      <ApexChart type="donut" :options="donutChartOptions" :series="donutseries" style="margin-top: 20px"></ApexChart>-->
+      
+      <div style="padding: 10px; margin-top: 46px;">
+        <van-radio-group v-model="chartType" direction="horizontal" style="display: flex; justify-content: space-around;">
+          <van-radio name="donut">饼状图</van-radio>
+          <van-radio name="treemap">树形图</van-radio>
+          <van-radio name="bar">柱状图</van-radio>
+        </van-radio-group>
+      </div>
+
+      <ApexChart v-if="chartType === 'donut'" type="donut" :options="donutChartOptions" :series="donutseries" style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'treemap'" type="treemap" :options="treeChartOptions" :series="treeseries" style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'bar'" type="bar" :options="barChartOptions" :series="barseries" style="margin: 20px 10px"></ApexChart>
     </van-popup>
   </div>
 </template>
@@ -159,11 +179,11 @@ export default {
 
   mounted() {
     this.onAnalysisV2Request();
-    this.renderThemeColor = this.inThemeColor;
+    this.renderThemeColor = this.outThemeColor;
   },
   data() {
     return {
-      tabIndex: 0,
+      tabIndex: 1,
 
       tabOptions: [
         {title: "收入", index: 0},
@@ -201,6 +221,11 @@ export default {
       inThemeColor: "#11941f",
       outThemeColor: "#c23737",
       renderThemeColor: "",
+
+      barseries: [],
+      barChartOptions: {},
+
+      chartType: 'donut', // 
 
       totalIn: "",
       totalOut: "",
@@ -368,13 +393,70 @@ export default {
         this.useTypeList = this.allInTypeList;
         this.makeTreeChartOptions(this.showInTypeList);
         this.makeDonutChartOptions(this.showInTypeList);
+        this.makeBarChartOptions(this.showInTypeList);
       } else {
         this.showTotal = this.totalOut;
         this.totalTitle = "支出总计";
         this.useTypeList = this.allOutTypeList;
         this.makeTreeChartOptions(this.showOutTypeList);
         this.makeDonutChartOptions(this.showOutTypeList);
+        this.makeBarChartOptions(this.showOutTypeList);
       }
+    },
+
+    makeBarChartOptions(data) {
+      this.barseries = [{
+        name: this.tabIndex === 0 ? '收入' : '支出',
+        data: data.map(item => parseFloat(item.money))
+      }];
+
+      this.barChartOptions = {
+        chart: {
+          type: 'bar',
+          height: 400
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            borderRadius: 5,
+            dataLabels: {
+              position: 'top'
+            }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return '￥' + val;
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ['#333']
+          }
+        },
+        xaxis: {
+          categories: data.map(item => item.name),
+          position: 'bottom',
+          labels: {
+            rotate: -45,
+            style: {
+              fontSize: '12px'
+            }
+          }
+        },
+        yaxis: {
+          title: {
+            text: '金额 (元)'
+          }
+        },
+        colors: [this.renderThemeColor],
+        title: {
+          text: this.tabIndex === 0 ? "收入分类统计" : "支出分类统计",
+          align: 'center'
+        }
+      };
     },
 
     makeTreeChartOptions(data) {

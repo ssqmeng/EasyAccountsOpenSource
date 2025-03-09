@@ -257,7 +257,7 @@ export default {
       chooseType: {},
       allTypes: [],
 
-      chooseDate: "",
+      chooseDate: this.formatDate(new Date()),
 
       isCollect: false,
 
@@ -271,7 +271,7 @@ export default {
         children: 'childrenTypes',
       },
 
-      minDate: new Date(2021, 0, 1),
+      minDate: new Date(2023, 0, 1),
       maxDate: new Date(),
     };
   },
@@ -283,6 +283,7 @@ export default {
       this.getAllTags()
     }
     this.doGetActions()
+    this.doGetAction('16')//已选择的action
     this.doGetAccounts()
   },
   methods: {
@@ -291,6 +292,7 @@ export default {
       this.fastDialogShow = false;
       showSuccessToast(template.name);
       this.money = template.money;
+      this.note = template.note;
       this.chooseAccount = template.account;
       if (template.action != null) {
         this.chooseAction = this.setActionStyle(template.action);
@@ -595,7 +597,20 @@ export default {
           })
     },
 
+    doGetAction(id) {
+      this.$http({
+        url: "/action/getAction/" + id,
+        method: "get",
+      })
+          .then((response) => {
+            //this.chooseAction = response.data.data;
+            this.onChooseAction(response.data.data)
+            console.log(this.allTypes)
+          })
+    },
+
     onChooseAction(action) {
+      this.setActionStyle(action);
       this.actionShow = false;
       if (action === this.chooseAction) {
         return

@@ -66,10 +66,10 @@ public class FlowController {
 
     @ApiOperation(value = "获取主业流水")
     @ApiParam(name = "chooseHandle", value = "0:全部 1:支出 2:收入", required = true)
-    @GetMapping("/getFlowListMain/{chooseHandle}/{chooseOrder}/{date}")
+    @GetMapping("/getFlowListMain/{chooseHandle}/{chooseOrder}/{date}/{pageNum}/{pageSize}")
     public BaseDto<FlowListDto> getFlowListMain(@PathVariable int chooseHandle, @PathVariable int chooseOrder
-            , @PathVariable String date ){
-        FlowListDto flowListDto = flowService.doGetMainBean(chooseHandle,chooseOrder,date);
+            , @PathVariable String date ,@PathVariable int pageNum,@PathVariable int pageSize ){
+        FlowListDto flowListDto = flowService.doGetMainBean(chooseHandle,chooseOrder,date,pageNum,pageSize);
         BaseDto baseDto = BaseDto.setSuccessBean();
         baseDto.setData(flowListDto);
         return baseDto;

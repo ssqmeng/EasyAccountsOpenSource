@@ -37,13 +37,14 @@ public class FileMakeWebHook {
         try {
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                String result = response.body().string();
-                WebHookDto webHookDto = GsonUtils.gson.fromJson(result, WebHookDto.class);
-                if (!"ok".equals(webHookDto.getStatus())) {
-                    return "\n调用webhook失败：\n" + webHookDto.getMessage()+"|1";
-                }else {
-                    return "\n调用webhook成功\n"+webHookDto.getResult()+"|0";
-                }
+                //String result = response.body().string();
+//                WebHookDto webHookDto = GsonUtils.gson.fromJson(result, WebHookDto.class);
+//                if (!"ok".equals(webHookDto.getStatus())) {
+//                    return "\n调用webhook失败：\n" + webHookDto.getMessage()+"|1";
+//                }else {
+//
+//                }
+                return "\n已发送到指定邮箱!\n"+"|0";
             } else {
                 System.out.println("文件上传失败：" + response.message());
                 return "\n调用webhook失败：\n" + response.message()+"|1";

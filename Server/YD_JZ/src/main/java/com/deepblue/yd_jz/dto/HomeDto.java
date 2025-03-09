@@ -9,6 +9,7 @@ public class HomeDto {
 
     private String totalAsset;
     private String netAsset;
+    private String cardAsset;//信用卡账单
     private String curIncome;
     private String curOutCome;
     //年度收入
@@ -18,6 +19,15 @@ public class HomeDto {
     //年度结余
     private String yearBalance;
     private List<HomeAccountBean> accounts;
+
+    private List<HomeAccountBean> accounts1;//储蓄卡
+
+    private List<HomeAccountBean> accounts2;//信用卡
+
+    private List<HomeAccountBean> accounts3;//投资账户
+
+    private List<HomeAccountBean> accounts9;//其他账户
+
     private List<HomeMonthDetailBean> monthDetails;
 
     @Data

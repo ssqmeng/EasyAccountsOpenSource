@@ -4,13 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @Slf4j
 public class FlowSelectProvider {
 
     public String getFlowByMain(@Param("handle") int handle, int order
-            , @Param("date") String date) {
+            , @Param("date") String date,int pageNum,@Param("pageSize")int pageSize) {
         String sqlStr = new SQL() {
             {
                 SELECT("flow.id,flow.f_date,flow.money,flow.collect,flow.exempt,flow.note,a.handle,a.h_name,ac.a_name,acc.a_name t_a_name,t.t_name,t2.t_name p_t_name");
@@ -34,6 +35,37 @@ public class FlowSelectProvider {
 
             }
         }.toString();
+
+        if(pageNum>0) {
+            // 计算 OFFSET
+            int offset = (pageNum - 1) * pageSize;
+            sqlStr += " LIMIT #{pageSize} OFFSET "+offset;
+        }
+
+        log.info("method: getFlowByMain\n"+sqlStr);
+        return sqlStr;
+    }
+
+    public String getFlowSum(@Param("handle") int handle, int order
+            , @Param("date") String date ) {
+        String sqlStr = new SQL() {
+            {
+                SELECT("ROUND(SUM(CASE WHEN a.handle = 1 THEN flow.money ELSE 0 END),2) AS totalOut,ROUND(SUM(CASE WHEN a.handle = 0 THEN flow.money ELSE 0 END),2) AS totalIn ");
+                FROM("flow");
+                LEFT_OUTER_JOIN("action a on flow.action_id = a.id");
+                LEFT_OUTER_JOIN("type t on flow.type_id = t.id");
+                LEFT_OUTER_JOIN("type t2 on t.parent = t2.id");
+                LEFT_OUTER_JOIN("account ac on flow.account_id = ac.id");
+                LEFT_OUTER_JOIN("account acc on flow.account_to_id = acc.id");
+
+                if (handle >= 3) {
+                    WHERE("a.handle < #{handle}", "flow.f_date like #{date}");
+                } else {
+                    WHERE("a.handle = #{handle}", "flow.f_date  like #{date}");
+                }
+            }
+        }.toString();
+
         log.info("method: getFlowByMain\n"+sqlStr);
         return sqlStr;
     }
@@ -62,7 +94,11 @@ public class FlowSelectProvider {
         return sqlStr;
     }
 
-    public String getFlowByScreen(int handle, int account, String startDate, String endDate, boolean isSingleMonth, boolean isCollect, String note) {
+    public String getFlowByScreen(int handle, int account, String startDate, String endDate,
+                                  String minMoney, String maxMoney,
+                                  boolean isSingleMonth, ArrayList<Integer> types,
+                                  boolean isCollect, String note,
+                                  int order, int pageNum, int pageSize) {
         StringBuilder sql = new StringBuilder("SELECT " +
                 "flow.id, flow.f_date AS flowDate, flow.money, flow.collect, flow.exempt, flow.note," +
                 "a.handle, a.h_name AS handleName, a.id AS actionId," +
@@ -93,8 +129,31 @@ public class FlowSelectProvider {
             }
         }
 
+        if (!"null".equals(minMoney) && !"".equals(minMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) >= CAST('").append(minMoney).append("' as DECIMAL ) \n");
+        }
+
+        if (!"null".equals(maxMoney) && !"".equals(maxMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
+        }
+
+
         if (isCollect) {
             sql.append("AND flow.collect = 1\n");
+        }
+
+        if(types!=null && types.size()>0)
+        {
+            StringBuilder typeStr =new StringBuilder("");
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    typeStr.append(types.get(i) + ",");
+                }else{
+                    typeStr.append(types.get(i) );
+                }
+            }
+
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
         }
 
         if (note != null) {
@@ -105,11 +164,164 @@ public class FlowSelectProvider {
             }
         }
 
-        sql.append("ORDER BY flow.f_date DESC");
+        if (order == 1) {
+            sql.append(" order by flow.money+0 desc ");
+        } else {
+            sql.append(" ORDER BY flow.f_date DESC,flow.id desc");
+        }
+
+        //sql.append("ORDER BY flow.f_date DESC");
+
+        if(pageNum>0) {
+            // 计算 OFFSET
+            int offset = (pageNum - 1) * pageSize;
+            sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append(offset);
+        }
+
         log.info("method: getFlowByScreen\n" + sql);
         return sql.toString();
     }
 
+    public String getFlowSumByScreen(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth, ArrayList<Integer> types, boolean isCollect, String note,int order) {
+        StringBuilder sql = new StringBuilder("SELECT " +
+                " ROUND(SUM(CASE WHEN a.handle = 1 THEN flow.money ELSE 0 END),2) AS totalOut,ROUND(SUM(CASE WHEN a.handle = 0 THEN flow.money ELSE 0 END),2) AS totalIn  \n");
+        sql.append("FROM flow\n");
+        sql.append("LEFT OUTER JOIN action a ON flow.action_id = a.id\n");
+        sql.append("LEFT OUTER JOIN type t ON flow.type_id = t.id\n");
+        sql.append("LEFT OUTER JOIN type t2 ON t.parent = t2.id\n");
+        sql.append("LEFT OUTER JOIN account ac ON flow.account_id = ac.id\n");
+        sql.append("LEFT OUTER JOIN account acc ON flow.account_to_id = acc.id\n");
+        sql.append("WHERE a.handle ").append(handle == 3 ? "<" : "=").append(handle).append("\n");
+
+        if (account > 0) {
+            sql.append("AND (flow.account_id = ").append(account).append(" OR flow.account_to_id = ").append(account).append(")\n");
+        }
+
+        if (isSingleMonth) {
+            String likeDate = startDate.substring(0, 7);
+            sql.append("AND flow.f_date LIKE '").append(likeDate).append("%'\n");
+        } else {
+            if (!"null".equals(startDate) && !"".equals(startDate)) {
+                sql.append("AND flow.f_date >= '").append(startDate).append("'\n");
+            }
+
+            if (!"null".equals(endDate) && !"".equals(endDate)) {
+                sql.append("AND flow.f_date <= '").append(endDate).append("'\n");
+            }
+        }
+
+        if (!"null".equals(minMoney) && !"".equals(minMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) >= CAST('").append(minMoney).append("' as DECIMAL ) \n");
+        }
+
+        if (!"null".equals(maxMoney) && !"".equals(maxMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
+        }
+
+        if(types!=null && types.size()>0)
+        {
+            StringBuilder typeStr =new StringBuilder("");
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    typeStr.append(types.get(i) + ",");
+                }else{
+                    typeStr.append(types.get(i) );
+                }
+            }
+
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
+        }
+
+        if (isCollect) {
+            sql.append(" AND flow.collect = 1 \n");
+        }
+
+        if (note != null) {
+            // Trim the note and check if it's not empty
+            String trimmedNote = note.trim();
+            if (!trimmedNote.isEmpty()) {
+                sql.append("AND flow.note LIKE '%").append(trimmedNote).append("%'\n");
+            }
+        }
+        if (order == 1) {
+            sql.append(" order by flow.money+0 desc ");
+        } else {
+            sql.append(" ORDER BY flow.f_date DESC,flow.id desc");
+        }
+        //sql.append("ORDER BY flow.f_date DESC,flow.id desc");
+        log.info("method: getFlowByScreen\n" + sql);
+        return sql.toString();
+    }
+
+
+    public String getFlowTypeSum(int handle, int account, String startDate, String endDate,String minMoney, String maxMoney, boolean isSingleMonth,
+                                 ArrayList<Integer> types, boolean isCollect, String note,int order) {
+        StringBuilder sql = new StringBuilder("SELECT " +
+                "t.t_name AS typeName, t.id AS typeId, t2.t_name AS parentTypeName, t2.id AS parentTypeId,ROUND(sum(flow.money),2) as typeSum\n");
+        sql.append("FROM flow\n");
+        sql.append("LEFT OUTER JOIN action a ON flow.action_id = a.id\n");
+        sql.append("LEFT OUTER JOIN type t ON flow.type_id = t.id\n");
+        sql.append("LEFT OUTER JOIN type t2 ON t.parent = t2.id\n");
+        sql.append("LEFT OUTER JOIN account ac ON flow.account_id = ac.id\n");
+        sql.append("LEFT OUTER JOIN account acc ON flow.account_to_id = acc.id\n");
+        sql.append("WHERE a.handle ").append(handle == 3 ? "<" : "=").append(handle).append("\n");
+
+        if (account > 0) {
+            sql.append("AND (flow.account_id = ").append(account).append(" OR flow.account_to_id = ").append(account).append(")\n");
+        }
+
+        if (isSingleMonth) {
+            String likeDate = startDate.substring(0, 7);
+            sql.append("AND flow.f_date LIKE '").append(likeDate).append("%'\n");
+        } else {
+            if (!"null".equals(startDate) && !"".equals(startDate)) {
+                sql.append("AND flow.f_date >= '").append(startDate).append("'\n");
+            }
+
+            if (!"null".equals(endDate) && !"".equals(endDate)) {
+                sql.append("AND flow.f_date <= '").append(endDate).append("'\n");
+            }
+        }
+
+        if (!"null".equals(minMoney) && !"".equals(minMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) >= CAST('").append(minMoney).append("' as DECIMAL ) \n");
+        }
+
+        if (!"null".equals(maxMoney) && !"".equals(maxMoney)) {
+            sql.append("AND CAST(flow.money AS DECIMAL) <= CAST('").append(maxMoney).append("' as DECIMAL ) \n");
+        }
+
+        if(types!=null && types.size()>0)
+        {
+            StringBuilder typeStr =new StringBuilder("");
+            for (int i=0;i<types.size();i++) {
+                if(i+1<types.size()) {
+                    typeStr.append(types.get(i) + ",");
+                }else{
+                    typeStr.append(types.get(i) );
+                }
+            }
+
+            sql.append(" AND (flow.type_id in ( " + typeStr.toString() + " ) or t2.id in ( "  + typeStr.toString() +" ) ) \n " ) ;
+        }
+
+
+        if (isCollect) {
+            sql.append(" AND flow.collect = 1 \n");
+        }
+
+        if (note != null) {
+            // Trim the note and check if it's not empty
+            String trimmedNote = note.trim();
+            if (!trimmedNote.isEmpty()) {
+                sql.append("AND flow.note LIKE '%").append(trimmedNote).append("%'\n");
+            }
+        }
+        sql.append(" group by t.t_name , t.id , t2.t_name, t2.id \n");
+        //sql.append("ORDER BY flow.f_date DESC,flow.id desc");
+        log.info("method: getFlowByScreen\n" + sql);
+        return sql.toString();
+    }
 
     public String getYearlySummary(@Param("year")int year) {
         String sql =  new SQL() {{

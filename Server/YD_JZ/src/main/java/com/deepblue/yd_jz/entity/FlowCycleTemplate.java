@@ -1,12 +1,13 @@
 package com.deepblue.yd_jz.entity;
 
 import lombok.Data;
+
 import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "flow_template")
-public class FlowTemplate {
+@Table(name = "flow_cycle_template")
+public class FlowCycleTemplate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,8 +16,11 @@ public class FlowTemplate {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "date_type", nullable = true)
-    private Integer dateType;
+    @Column(name = "cycle_type", nullable = true)
+    private Integer cycleType;
+
+    @Column(name = "start_date", nullable = true)
+    private String startDate;
 
     @Column(name = "money", nullable = true)
     private String money;
@@ -37,9 +41,6 @@ public class FlowTemplate {
     private Integer accountToId;
 
 
-    @Column(name = "tag_id", nullable = true)
-    private Integer tagId;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", insertable = false, updatable = false)
     private Account account;
@@ -56,7 +57,4 @@ public class FlowTemplate {
     @JoinColumn(name = "type_id", insertable = false, updatable = false)
     private Type type;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tag_id", insertable = false, updatable = false)
-    private TemplateTag tag;
 }
