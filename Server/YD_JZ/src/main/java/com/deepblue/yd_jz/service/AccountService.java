@@ -181,19 +181,27 @@ public class AccountService {
             Account account = accountMap.get(flow.getAccountId());
             switch (flow.getAction().getHandle()){
                 case ACTION_ADD:
-                    account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_ADD).toString());
+                    if(flow.getAccountId()>1) {
+                        account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_ADD).toString());
+                    }
                     break;
                 case ACTION_SUB:
-                    account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_SUB).toString());
+                    if(flow.getAccountId()>1) {
+                        account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_SUB).toString());
+                    }
                     break;
                 case ACTION_INNER:
-                    log.info("内部转账：从"
-                            +account.getAName()
-                            +"转账到"+accountMap.get(flow.getAccountToId()).getAName()
-                            +"  金额："+flow.getMoney());
-                    account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_SUB).toString());
-                    Account accountTo = accountMap.get(flow.getAccountToId());
-                    accountTo.setMoney(reverseMoney(accountTo.getMoney(), flow.getMoney(), ACTION_ADD).toString());
+//                    log.info("内部转账：从"
+//                            +account.getAName()
+//                            +"转账到"+accountMap.get(flow.getAccountToId()).getAName()
+//                            +"  金额："+flow.getMoney());
+                    if(flow.getAccountId()>1) {
+                        account.setMoney(reverseMoney(account.getMoney(), flow.getMoney(), ACTION_SUB).toString());
+                    }
+                    if(flow.getAccountToId()>1) {
+                        Account accountTo = accountMap.get(flow.getAccountToId());
+                        accountTo.setMoney(reverseMoney(accountTo.getMoney(), flow.getMoney(), ACTION_ADD).toString());
+                    }
                     break;
             }
         }

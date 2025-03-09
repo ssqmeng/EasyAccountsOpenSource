@@ -80,6 +80,7 @@
             <div>
               年度结余： ￥{{ this.homeInfo.yearBalance }}
             </div>
+           
           </div>
           <div style="display: flex; flex-direction: column; float: right;  margin-top: 5px; ">
             <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
@@ -90,6 +91,7 @@
               </van-button>
               <van-button size="mini" plain type="primary" icon="plus" @click="toNetYear"></van-button>
             </div>
+            <van-button type="primary" size="small" @click="showCharts = true" style="margin-top: 10px;">查看图表</van-button>
           </div>
         </div>
         <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> {{ this.chooseYear
@@ -133,15 +135,35 @@
 
     </van-tabs>
 
+    <van-popup v-model:show="showCharts" position="top" :style="{ width: '100%', background:'#F7F8FA' }">
+      <van-nav-bar fixed placeholder title="月度收支图表">
+        <template #right>
+          <van-icon name="cross" size="18" @click="()=>{showCharts = false}"/>
+        </template>
+      </van-nav-bar>
+      
+      <div style="padding: 10px; margin-top: 46px;">
+        <van-radio-group v-model="chartType" direction="horizontal" style="display: flex; justify-content: space-around;">
+          <van-radio name="income">月收入</van-radio>
+          <van-radio name="outcome">月支出</van-radio>
+        </van-radio-group>
+      </div>
+
+      <ApexChart v-if="chartType === 'income'" type="bar" :options="incomeChartOptions" :series="incomeSeries" style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'outcome'" type="bar" :options="outcomeChartOptions" :series="outcomeSeries" style="margin: 20px 10px"></ApexChart>
+    </van-popup>
   </div>
 </template>
 
 <script>
 
-
+import ApexCharts from 'vue3-apexcharts';
 import { showFailToast } from "vant";
 
 export default {
+  components: {
+    ApexChart: ApexCharts,
+  },
   data() {
     return {
       activeTab: 0, // 新增：当前激活的标签页
@@ -153,6 +175,13 @@ export default {
       showNextYearButton: false,
       showAccountsDetail: true,
       homeInfo: {},
+
+      showCharts: false,
+      chartType: 'income',
+      incomeSeries: [],
+      outcomeSeries: [],
+      incomeChartOptions: {},
+      outcomeChartOptions: {},
     };
   },
   mounted() {
@@ -160,6 +189,65 @@ export default {
     this.prepareYearColum();
   },
   methods: {
+    makeChartOptions() {
+      // 收入图表配置
+      this.incomeSeries = [{
+        name: '收入',
+        data: this.homeInfo.monthDetails.map(item => parseFloat(item.income))
+      }];
+
+      this.incomeChartOptions = {
+        chart: {
+          type: 'bar',
+          height: 350
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            borderRadius: 5,
+            dataLabels: {
+              position: 'top'
+            }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return '￥' + val;
+          },
+          offsetY: -20
+        },
+        xaxis: {
+          categories: this.homeInfo.monthDetails.map(item => item.month + '月')
+        },
+        yaxis: {
+          title: {
+            text: '金额 (元)'
+          }
+        },
+        colors: ['#42b983'],
+        title: {
+          text: this.chooseYear + "年收入统计",
+          align: 'center'
+        }
+      };
+
+      // 支出图表配置
+      this.outcomeSeries = [{
+        name: '支出',
+        data: this.homeInfo.monthDetails.map(item => parseFloat(item.outcome))
+      }];
+
+      this.outcomeChartOptions = {
+        ...this.incomeChartOptions,
+        colors: ['#f54949'],
+        title: {
+          text: this.chooseYear + "年支出统计",
+          align: 'center'
+        }
+      };
+    },
     prepareYearColum() {
       var year = new Date().getFullYear();
       for (var i = year; i >= this.minYear; i--) {
@@ -250,6 +338,7 @@ export default {
             account.realAsset == '';
           }
         })
+        this.makeChartOptions(); // 在数据加载完成后生成图表
       }).catch((error) => {
         console.error("获取首页信息失败:", error);
       });

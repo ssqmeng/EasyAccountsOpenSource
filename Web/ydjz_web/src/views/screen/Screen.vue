@@ -390,11 +390,11 @@ export default {
     this.endDate = ""
     this.showTimeDatePicker = false
     this.handle = 3
-    this.onFastDateChoose(this.fastChoose)
+    this.onFastDateChoose(this.fastChoose,false)
     this.doGetTypes()
     this.doGetActions()
     this.doGetAccounts()
-    this.doGetCurrentFlow()
+    //this.doGetCurrentFlow()
   },
 
   methods: {
@@ -500,17 +500,20 @@ export default {
     },
 
     doGetCurrentFlow() {
+      if (this.loading) return; // 如果正在加载，直接返回，防止重复调用
       this.pageNum = 1;
       this.flows = [];
       this.total = 0;
       this.sumQuantity = 0;
       this.sumAmount = 0;
       this.finished = false;
-      this.loading = true;      // 手动触发加载状态
+      //this.loading = true;      // 手动触发加载状态
       this.onLoad();            // 调用加载方法
     },
 
     onLoad() {
+      if (this.loading) return; // 如果正在加载，直接返回，防止重复调用
+      this.loading = true;
       this.$http({
         url: "/screen/getFlowByScreen",
         method: "post",
@@ -685,7 +688,7 @@ export default {
       this.accountPopupShow = false
     },
 
-    onFastDateChoose(check) {
+    onFastDateChoose(check,loadData = true) {
       this.singleMonth = true
       var data = new Date()
       switch (check) {
@@ -718,7 +721,9 @@ export default {
       console.log(this.startDate)
       console.log(this.endDate)
       console.log(this.singleMonth)
-      this.doGetCurrentFlow()
+      if (loadData) {
+          this.doGetCurrentFlow()
+      }
     },
 
     onDatePickerClick({ selectedValues }) {

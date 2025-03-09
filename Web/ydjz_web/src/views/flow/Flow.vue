@@ -35,8 +35,8 @@
     <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 账本概览
     </van-divider>
 
-    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" v-model:error="error" error-text="请求失败，点击重新加载"
-      @load="onLoad">
+    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" v-model:error="error"
+      error-text="请求失败，点击重新加载" @load="onLoad">
       <van-cell-group :border="false">
         <div @click="toUpdateFlow(flow.id)" v-for="flow in flows" :key="flow.id">
           <van-swipe-cell>
@@ -153,18 +153,18 @@ export default {
     //document.addEventListener('touchmove', this.dragMove);
     this.offset = { x: window.innerWidth - 83, y: window.innerHeight - 180 };
   },
-  watch: {
-    '$route': 'handleRouteChange'
-  },
+  // watch: {
+  //   '$route': 'handleRouteChange'
+  // },
   methods: {
 
-    handleRouteChange() {
-      const newMonth = this.$route.query.month;
-      if (newMonth !== this.chooseMonth) {
-        this.chooseMonth = newMonth || this.curDate.getFullYear() + "-" + (this.curDate.getMonth() + 1).toString().padStart(2, "0");
-        this.getMonthFlow();
-      }
-    },
+    // handleRouteChange() {
+    //   const newMonth = this.$route.query.month;
+    //   if (newMonth !== this.chooseMonth) {
+    //     this.chooseMonth = newMonth || this.curDate.getFullYear() + "-" + (this.curDate.getMonth() + 1).toString().padStart(2, "0");
+    //     this.getMonthFlow();
+    //   }
+    // },
 
     formatter(type, option) {
       if (type === 'year') {
@@ -179,18 +179,22 @@ export default {
 
 
     getMonthFlow() {
+      if (this.loading) {
+        return;
+      }
       this.pageNum = 1;
       this.flows = [];
       this.total = 0;
       this.sumQuantity = 0;
       this.sumAmount = 0;
       this.finished = false;
-      this.loading = true;      // 手动触发加载状态
-      this.onLoad();            // 调用加载方法
-      //this.onLoad();
+      //this.loading = true;      // 手动触发加载状态
+      this.onLoad();
     },
 
     onLoad() {
+      if (this.loading) return; // 如果正在加载，直接返回，防止重复调用
+      this.loading = true;
       this.$http({
         url:
           "/flow/getFlowListMain/" +
@@ -198,7 +202,7 @@ export default {
           "/" +
           this.order +
           "/" +
-          this.chooseMonth+
+          this.chooseMonth +
           "/" +
           this.pageNum +
           "/" +
@@ -350,7 +354,7 @@ export default {
       let pickDate = new Date(selectedValues[0], selectedValues[1] - 1);
       console.log(new Date(selectedValues[0], selectedValues[1] - 1));
       this.chooseMonth = pickDate.getFullYear() + "-" + (pickDate.getMonth() + 1).toString().padStart(2, "0");
-      this.getMonthFlow()
+      //this.getMonthFlow()
       this.showPicker = false;
     },
 
