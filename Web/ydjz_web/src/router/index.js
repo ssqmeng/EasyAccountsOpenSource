@@ -150,7 +150,7 @@ const routes = [
     component: SettingLayout,
     children: [
       {
-        path: "/setting/account",
+        path: "account",
         name: "Account",
         component: () =>
           import(
@@ -158,13 +158,13 @@ const routes = [
           ),
       },
       {
-        path: "/setting/type",
+        path: "type",
         name: "Type",
         component: () =>
           import(/* webpackChunkName: "setting" */ "../views/setting/Type.vue"),
       },
       {
-        path: "/setting/action",
+        path: "action",
         name: "Action",
         component: () =>
           import(
@@ -172,7 +172,7 @@ const routes = [
           ),
       },
       {
-        path: "/setting/template",
+        path: "template",
         name: "Template",
         component: () =>
           import(
@@ -181,7 +181,7 @@ const routes = [
       }
       ,
       {
-        path: "/setting/cycle",
+        path: "cycle",
         name: "Cycle",
         component: () =>
           import(
@@ -189,7 +189,7 @@ const routes = [
           ),
       },
       {
-        path: "/setting/config",
+        path: "config",
         name: "Config",
         component: () =>
           import(
