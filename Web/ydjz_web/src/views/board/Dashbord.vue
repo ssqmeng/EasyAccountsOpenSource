@@ -301,7 +301,8 @@ export default {
       this.$router.push({ path: "/analysis" });
     },
     toScreen(acid) {
-      this.$router.push({ path: "/screen", query: { acid: acid } });
+      //this.$router.push({ path: "/screen", query: { acid: acid } });
+      this.$router.push({ path: "/account/add", query: { accountId: acid } });
     },
 
     toFlow(month) {

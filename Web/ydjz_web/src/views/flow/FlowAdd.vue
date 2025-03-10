@@ -159,7 +159,7 @@
 
       <van-cell-group :border="false" inset style="margin-top: 10px;">
         <van-cell title="模板列表" :border="false"/>
-        <van-grid :border="true" :column-num="2" :gutter="10" style="margin-bottom: 10px" :center="false"
+        <van-grid :border="true" :column-num="3" :gutter="10" style="margin-bottom: 10px" :center="false"
                   v-if="allTemplates.length!=0">
           <van-grid-item v-for="template in allTemplates" :key="template.id">
             <template #default>
@@ -168,11 +168,11 @@
                   <div class="template-name">{{ template.name }}</div>
                   <van-tag v-if="template.tag" :color="template.tag.color">{{ template.tag.name }}</van-tag>
                 </div>
-                <div class="template-action">
+                <!-- <div class="template-action">
                   <van-button plain hairline size="small" type="primary" style="margin-left: 10px"
                               @click.stop="fastDialogClick(template)">详情
                   </van-button>
-                </div>
+                </div> -->
               </div>
             </template>
           </van-grid-item>
@@ -669,19 +669,24 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px; /* 增加内部间距 */
+  padding: 6px; /* 减小内边距 */
 }
 
 .template-info {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start; /* 左对齐文本和标签 */
+  align-items: flex-start;
+  gap: 2px; /* 添加更紧凑的间距 */
 }
 
 .template-name {
-  font-size: 14px; /* 字体大小调整 */
-  margin-bottom: 4px; /* 为名称和标签之间添加间距 */
+  font-size: 13px; /* 稍微减小字体 */
+  margin-bottom: 2px; /* 减小名称下方间距 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px; /* 控制最大宽度，避免文字过长 */
 }
 
 .template-tag {

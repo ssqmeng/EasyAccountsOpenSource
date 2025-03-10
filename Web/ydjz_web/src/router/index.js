@@ -14,7 +14,7 @@ const routes = [
   },
   {
     path: "/",
-    redirect: "/board" // 访问 / 时，自动重定向到 /board
+    redirect: "/flow" // 访问 / 时，自动重定向到 /board
   },
   {
     path: "/",

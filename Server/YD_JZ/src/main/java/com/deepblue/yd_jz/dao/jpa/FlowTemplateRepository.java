@@ -1,5 +1,6 @@
 package com.deepblue.yd_jz.dao.jpa;
 
+import com.deepblue.yd_jz.entity.Account;
 import com.deepblue.yd_jz.entity.FlowTemplate;
 import com.deepblue.yd_jz.entity.TemplateTag;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,10 @@ import java.util.List;
 
 @Repository
 public interface FlowTemplateRepository  extends JpaRepository<FlowTemplate, Integer> {
+
+
+    @Query("select a from FlowTemplate a order by a.tagId,a.name")
+    List<FlowTemplate> findAll();
 
     List<FlowTemplate> findFlowTemplateByTagId(Integer tagId);
 

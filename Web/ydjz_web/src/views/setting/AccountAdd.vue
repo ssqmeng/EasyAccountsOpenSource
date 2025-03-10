@@ -4,20 +4,16 @@
       v-if="this.$route.query.accountId != null"
       title="添加账号"
       left-text="返回"
-      right-text="更新"
       left-arrow
       @click-left="onClickLeft"
-      @click-right="onClickRight"
     />
 
     <van-nav-bar
       v-else
       title="添加账号"
       left-text="返回"
-      right-text="保存"
       left-arrow
       @click-left="onClickLeft"
-      @click-right="onClickRight"
     />
 
     <van-cell-group>
@@ -71,6 +67,32 @@
         show-word-limit
       />
     </van-cell-group>
+    <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
+      <van-button 
+        @click="onClickRight()" 
+        type="primary" 
+        round 
+        size="normal"
+        icon="success"
+        color="linear-gradient(to right, #07c160, #10b981)"
+        style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(7, 193, 96, 0.2);"
+      >
+        {{ this.$route.query.accountId ? '更新账户' : '保存账户' }}
+      </van-button>
+
+      <van-button 
+        v-if="this.$route.query.accountId"
+        @click="toScreen()" 
+        type="primary" 
+        round 
+        size="normal"
+        icon="chart-trending-o"
+        color="linear-gradient(to right, #1989fa, #39b9fa)"
+        style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);"
+      >
+        查看交易记录
+      </van-button>
+    </div>
   </div>
 </template>
 
@@ -117,6 +139,9 @@ export default {
 
     onClickLeft() {
       this.$router.go(-1);
+    },
+    toScreen() {
+      this.$router.push({ path: "/screen", query: { acid: this.$route.query.accountId } });
     },
 
     doAdd() {
