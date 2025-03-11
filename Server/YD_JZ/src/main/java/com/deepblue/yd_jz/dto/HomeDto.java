@@ -46,5 +46,6 @@ public class HomeDto {
         private String income;
         private String outcome;
         private String balance;
+        private String netAsset;
     }
 }

@@ -7,7 +7,7 @@
       <div>
         <div style="font-size: 20px; font-weight: 600; color: #333;">总资产：￥{{ this.homeInfo.netAsset }}</div>
         <div style="font-size: 16px; color: #333; margin-top: 5px;">资产：￥{{ this.homeInfo.totalAsset }}</div>
-        <div style="font-size: 16px; color: #333; margin-top: 5px;">资产：￥{{ this.homeInfo.cardAsset }}</div>
+        <div style="font-size: 16px; color: #333; margin-top: 5px;">负债：￥{{ this.homeInfo.cardAsset }}</div>
       </div>
       <!--
       <van-button
@@ -80,7 +80,7 @@
             <div>
               年度结余： ￥{{ this.homeInfo.yearBalance }}
             </div>
-           
+
           </div>
           <div style="display: flex; flex-direction: column; float: right;  margin-top: 5px; ">
             <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
@@ -91,7 +91,8 @@
               </van-button>
               <van-button size="mini" plain type="primary" icon="plus" @click="toNetYear"></van-button>
             </div>
-            <van-button type="primary" size="small" @click="showCharts = true" style="margin-top: 10px;">查看图表</van-button>
+            <van-button type="primary" size="small" @click="showCharts = true"
+              style="margin-top: 10px;">查看图表</van-button>
           </div>
         </div>
         <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> {{ this.chooseYear
@@ -107,7 +108,8 @@
             <van-col span="3" style="font-weight: bold; color: #333;justify-content: center">月份</van-col>
             <van-col span="7" style="font-weight: bold; color: #333;justify-content: center">收入</van-col>
             <van-col span="7" style="font-weight: bold; color: #333;">支出</van-col>
-            <van-col span="7" style="font-weight: bold; color: #333;">结余</van-col>
+            <!-- <van-col span="5" style="font-weight: bold; color: #333;">结余</van-col> -->
+            <van-col span="7" style="font-weight: bold; color: #333;">净资产</van-col>
           </van-row>
 
           <!-- 数据行 -->
@@ -118,7 +120,8 @@
                 <van-col span="3">{{ month.month }}月</van-col>
                 <van-col span="7" style="color: #42b983">￥{{ month.income }}</van-col>
                 <van-col span="7" style="color: #f54949">￥{{ month.outcome }}</van-col>
-                <van-col span="7">￥{{ month.balance }}</van-col>
+                <!-- <van-col span="5">￥{{ month.balance }}</van-col> -->
+                <van-col span="7" style="color: #42b983">{{ month.netAsset ? '￥' + month.netAsset : '未统计' }}</van-col>
               </van-row>
             </div>
           </div>
@@ -135,22 +138,28 @@
 
     </van-tabs>
 
-    <van-popup v-model:show="showCharts" position="top" :style="{ width: '100%', background:'#F7F8FA' }">
+    <van-popup v-model:show="showCharts" position="top" :style="{ width: '100%', background: '#F7F8FA' }">
       <van-nav-bar fixed placeholder title="月度收支图表">
         <template #right>
-          <van-icon name="cross" size="18" @click="()=>{showCharts = false}"/>
+          <van-icon name="cross" size="18" @click="() => { showCharts = false }" />
         </template>
       </van-nav-bar>
-      
+
       <div style="padding: 10px; margin-top: 46px;">
-        <van-radio-group v-model="chartType" direction="horizontal" style="display: flex; justify-content: space-around;">
+        <van-radio-group v-model="chartType" direction="horizontal"
+          style="display: flex; justify-content: space-around;">
           <van-radio name="income">月收入</van-radio>
           <van-radio name="outcome">月支出</van-radio>
+          <van-radio name="netAsset">资产趋势图</van-radio>
         </van-radio-group>
       </div>
 
-      <ApexChart v-if="chartType === 'income'" type="bar" :options="incomeChartOptions" :series="incomeSeries" style="margin: 20px 10px"></ApexChart>
-      <ApexChart v-if="chartType === 'outcome'" type="bar" :options="outcomeChartOptions" :series="outcomeSeries" style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'income'" type="bar" :options="incomeChartOptions" :series="incomeSeries"
+        style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'outcome'" type="bar" :options="outcomeChartOptions" :series="outcomeSeries"
+        style="margin: 20px 10px"></ApexChart>
+      <ApexChart v-if="chartType === 'netAsset'" type="bar" :options="netAssetChartOptions" :series="netAssetSeries"
+        style="margin: 20px 10px"></ApexChart>
     </van-popup>
   </div>
 </template>
@@ -180,8 +189,9 @@ export default {
       chartType: 'income',
       incomeSeries: [],
       outcomeSeries: [],
+      netAssetSeries: [],
       incomeChartOptions: {},
-      outcomeChartOptions: {},
+      netAssetChartOptions: {},
     };
   },
   mounted() {
@@ -214,7 +224,15 @@ export default {
         dataLabels: {
           enabled: true,
           formatter: function (val) {
-            return '￥' + val;
+            //return '￥' + val;
+            if (val) {
+              return '';//不显示
+            }
+            return '';//不显示
+          },
+          style: {
+            colors: ['#333'],
+            fontSize: '12px'
           },
           offsetY: -20
         },
@@ -247,6 +265,55 @@ export default {
           align: 'center'
         }
       };
+
+      // 净资产图表配置
+      this.netAssetSeries = [{
+        name: '净资产',
+        data: this.homeInfo.monthDetails.map(item => item.netAsset ? parseFloat(item.netAsset) : null),
+        type: 'line'
+      }];
+
+      this.netAssetChartOptions = {
+        chart: {
+          type: 'line',
+          height: 350
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 2
+        },
+        markers: {
+          size: 5
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            //return '￥' + val;
+            if (val) {
+              return '';//不显示
+            }
+            return '';//不显示
+          },
+          style: {
+            colors: ['#333'],
+            fontSize: '12px'
+          },
+          offsetY: -20
+        },
+        xaxis: {
+          categories: this.homeInfo.monthDetails.map(item => item.month + '月')
+        },
+        yaxis: {
+          title: {
+            text: '金额 (元)'
+          }
+        },
+        colors: ['#1989fa'],
+        title: {
+          text: this.chooseYear + "年净资产趋势",
+          align: 'center'
+        }
+      }
     },
     prepareYearColum() {
       var year = new Date().getFullYear();

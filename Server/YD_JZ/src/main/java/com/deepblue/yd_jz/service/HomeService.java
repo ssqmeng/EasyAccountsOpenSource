@@ -1,6 +1,8 @@
 package com.deepblue.yd_jz.service;
 
+import com.alibaba.excel.util.StringUtils;
 import com.deepblue.yd_jz.dao.jpa.FlowRepository;
+import com.deepblue.yd_jz.dao.mybatis.AccountBackupDao;
 import com.deepblue.yd_jz.dto.HomeDto;
 import com.deepblue.yd_jz.dto.VersionDto;
 import com.deepblue.yd_jz.entity.Account;
@@ -36,6 +38,10 @@ public class HomeService {
 
     @Autowired
     FlowRepository flowRepository;
+
+    @Autowired
+    AccountBackupDao accountBackupDao;
+
 
     @Autowired
     VersionUtils versionUtils;
@@ -133,6 +139,8 @@ public class HomeService {
         homeDto.setYearOutCome(formattedTotalCosts);
         homeDto.setYearIncome(formattedTotalEarns);
         homeDto.setYearBalance(formattedTotalBalance);
+
+
         return homeDto;
     }
 
@@ -172,7 +180,22 @@ public class HomeService {
             monthDetailBean.setIncome(formattedIncome);
             monthDetailBean.setOutcome(formattedOutcome);
             monthDetailBean.setBalance(formattedBalance);
+            /**
+             * 获取当月净资产
+             */
+            String monthStr;
+            if (month < 10) {
+                monthStr = year + "-0" + month;
+            } else {
+                monthStr = year + "-" + month;
+            }
+            String netAsset = accountBackupDao.getNetAsset(monthStr);
+            if(!StringUtils.isEmpty(netAsset))
+            {
+                monthDetailBean.setNetAsset(netAsset);
+            }
             homeDto.getMonthDetails().add(monthDetailBean);
+
         }
         return homeDto;
     }

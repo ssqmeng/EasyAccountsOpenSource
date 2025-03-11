@@ -2,8 +2,8 @@
   <div>
     <!--  1.8版本 筛选功能  -->
     <van-sticky :style="{ background: '#FFFFFF' }">
-      <van-nav-bar fixed placeholder title="筛选" left-arrow right-text="更多条件" @click-right="() => { morePopupShow = true }"
-        @click-left="onClickLeft" />
+      <van-nav-bar fixed placeholder title="筛选" left-arrow right-text="更多条件"
+        @click-right="() => { morePopupShow = true }" @click-left="onClickLeft" />
       <!--   备注搜索 2.1.0版本   -->
       <van-search v-if="useNote" v-model="note" shape="round" placeholder="请输入备注关键词" @search="onNoteSearch" show-action>
         <template #action>
@@ -71,8 +71,8 @@
 
     <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa', padding: '0 16px' }"> 当期账单概览
     </van-divider>
-    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" v-model:error="error" error-text="请求失败，点击重新加载"
-      @load="onLoad">
+    <van-list v-model="loading" :finished="finished" :finished-text="flows.length > 0 ? '没有更多了' : ''"  v-model:error="error"
+      error-text="请求失败，点击重新加载" @load="onLoad">
       <van-cell-group :border="false">
         <div @click="toUpdateFlow(flow.id)" v-for="flow in flows" :key="flow.id">
           <van-swipe-cell>
@@ -119,7 +119,7 @@
             </template>
           </van-swipe-cell>
         </div>
-        <van-back-top right="10vw" bottom="15vh" @click="doGetCurrentFlow"/>
+        <van-back-top right="10vw" bottom="15vh" @click="doGetCurrentFlow" />
       </van-cell-group>
       <van-empty v-show="flows.length == 0" description="当期无账单" />
     </van-list>
@@ -138,7 +138,7 @@
 
     <van-popup v-model:show="morePopupShow" position="top"
       :style="{ width: '100%', height: '100%', background: '#F7F8FA' }">
-      <van-nav-bar fixed placeholder title="详细筛选条件" left-arrow right-text="筛选" @click-right="onDetailScreenChoose">
+      <van-nav-bar fixed placeholder title="详细筛选条件" left-arrow >
         <template #left>
           <van-icon name="cross" size="18" @click="() => { morePopupShow = false }" />
         </template>
@@ -233,15 +233,13 @@
       <van-tree-select :style="{ margin: '15px' }" :items="allTypes" v-model:active-id="chooseTypes"
         v-model:main-active-index="activeIndex" @click-item="onTypesClick" />
 
-        <van-divider :style="{ color: '#1989fa', }" content-position="left">金额范围</van-divider>
-        <van-cell-group inset :border="false" style="display: flex; justify-content: space-between;">
+      <van-divider :style="{ color: '#1989fa', }" content-position="left">金额范围</van-divider>
+      <van-cell-group inset :border="false" style="display: flex; justify-content: space-between;">
         <van-field input-align="right" v-model="minMoney" type="number" label="最小值" placeholder="最小金额"
-          @touchstart="keyboardShow = true"
-          style="flex: 1; margin-right: 10px; height: 50px; " label-width="80px" />
+          @touchstart="keyboardShow = true" style="flex: 1; margin-right: 10px; height: 50px; " label-width="80px" />
 
         <van-field input-align="right" v-model="maxMoney" type="number" label="最大值" placeholder="最大金额"
-          @touchstart="keyboardShow = true" 
-          style="flex: 1; height: 50px; " label-width="80px" />
+          @touchstart="keyboardShow = true" style="flex: 1; height: 50px; " label-width="80px" />
       </van-cell-group>
 
       <van-divider :style="{ color: '#1989fa', }" content-position="left">筛选收藏</van-divider>
@@ -255,15 +253,22 @@
 
       </van-cell-group>
 
-      <div style="margin-left: 15px;margin-right: 15px;margin-bottom:20px;border-radius: 8px">
-        <van-button type="primary" style="margin-top: 5px" size="large" @click="() => { excelDialogShow = true }">生成EXCEL
+      <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
+        <van-button @click="onDetailScreenChoose()" type="primary" round size="normal" icon="success"
+          color="linear-gradient(to right, #07c160, #10b981)"
+          style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(7, 193, 96, 0.2);">
+          搜索
         </van-button>
-
+        <van-button  @click="() => { excelDialogShow = true }" type="primary" round
+          size="normal" icon="chart-trending-o" color="linear-gradient(to right, #1989fa, #39b9fa)"
+          style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);">
+          生成EXCEL
+        </van-button>
       </div>
     </van-popup>
 
-    <van-popup v-model:show="showTimeDatePicker" close-on-click-overlay round position="bottom" :style="{ height: '60%' }"
-      @click-overlay="showTimeDatePicker = false">
+    <van-popup v-model:show="showTimeDatePicker" close-on-click-overlay round position="bottom"
+      :style="{ height: '60%' }" @click-overlay="showTimeDatePicker = false">
       <van-date-picker v-if="setStartDate" show-toolbar title="选择开始日期" type="date" v-model="currentTime"
         :min-date="minDate" :max-date="maxDate" :formatter="formatter" @cancel="showTimeDatePicker = false"
         @confirm="onDatePickerClick" :columns-type="columnsType" />
@@ -298,10 +303,14 @@
 
       </van-cell-group>
     </van-action-sheet>
+
+
     <van-dialog v-model:show="excelDialogShow" closeOnClickOverlay @confirm="onMakeExcelClick"
       @cancel="excelDialogShow = false" title="生成Excel" show-cancel-button>
       <van-field v-model="excelName" label="Excel标题" placeholder="请输入Excel标题" />
     </van-dialog>
+
+
   </div>
 </template>
 
@@ -390,7 +399,7 @@ export default {
     this.endDate = ""
     this.showTimeDatePicker = false
     this.handle = 3
-    this.onFastDateChoose(this.fastChoose,false)
+    this.onFastDateChoose(this.fastChoose, false)
     this.doGetTypes()
     this.doGetActions()
     this.doGetAccounts()
@@ -688,7 +697,7 @@ export default {
       this.accountPopupShow = false
     },
 
-    onFastDateChoose(check,loadData = true) {
+    onFastDateChoose(check, loadData = true) {
       this.singleMonth = true
       var data = new Date()
       switch (check) {
@@ -722,19 +731,20 @@ export default {
       console.log(this.endDate)
       console.log(this.singleMonth)
       if (loadData) {
-          this.doGetCurrentFlow()
+        this.doGetCurrentFlow()
       }
     },
 
     onDatePickerClick({ selectedValues }) {
       let pickDate = new Date(selectedValues[0], selectedValues[1] - 1, selectedValues[2]);
-      this.fastChoose = -1
+      //this.fastChoose = -1
       this.showTimeDatePicker = false
       if (this.setStartDate) {
         this.startDate = this.fomatTime(pickDate)
       } else {
         this.endDate = this.fomatTime(pickDate)
       }
+      this.doGetCurrentFlow()
     },
 
     doGetNotString(flow) {

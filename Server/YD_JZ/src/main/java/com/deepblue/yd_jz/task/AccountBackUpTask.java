@@ -28,6 +28,7 @@ public class AccountBackUpTask {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
         accountBackupDao.backupAccount(today);
+        accountBackupDao.backupAccountAll(today);
         //生成月度报表
         excelService.makeMonthExcel(today);
 

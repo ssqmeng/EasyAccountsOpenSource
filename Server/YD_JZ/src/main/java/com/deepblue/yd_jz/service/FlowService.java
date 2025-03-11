@@ -58,26 +58,35 @@ public class FlowService {
         BigDecimal accountMoney = new BigDecimal(account.getMoney());
         switch (action.getHandle()) {
             case ContentValues.ACTION_ADD:
-                account = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), account, action.isExempt());
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), account, action.isExempt());
+                }
                 break;
             case ContentValues.ACTION_SUB:
                 if (accountMoney.compareTo(flowMoney) < 0) {
                     //throw new Exception("减少金额不允许大于账户金额");
                 }
-                account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
+                }
                 break;
             case ContentValues.ACTION_INNER:
                 if (accountMoney.compareTo(flowMoney) < 0) {
                     //throw new Exception("减少金额不允许大于账户金额");
                 }
-                toAccount = accountService.getOriginAccountById(flowAddRequestDto.getAccountToId());
-                toAccount = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), toAccount, action.isExempt());
-                accountService.updateOriginAccount(toAccount);
-                account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
+                if(toAccount.getId()>1) {
+                    toAccount = accountService.getOriginAccountById(flowAddRequestDto.getAccountToId());
+                    toAccount = handleAccount(ContentValues.ACTION_ADD, flowAddRequestDto.getMoney(), toAccount, action.isExempt());
+                    accountService.updateOriginAccount(toAccount);
+                }
+                if(account.getId()>1) {
+                    account = handleAccount(ContentValues.ACTION_SUB, flowAddRequestDto.getMoney(), account, action.isExempt());
+                }
                 break;
         }
-        accountService.updateOriginAccount(account);
-
+        if(account.getId()>1) {
+            accountService.updateOriginAccount(account);
+        }
         Flow flow = new Flow();
         flow.setExempt(action.isExempt());
         BeanUtils.copyProperties(flowAddRequestDto, flow);
@@ -109,8 +118,8 @@ public class FlowService {
                 if (accountMoney.compareTo(flowMoney) < 0) {
                     //throw new Exception("减少金额不允许大于账户金额");
                 }
-                toAccount = accountService.getOriginAccountById(flowCycleTemplate.getAccountToId());
                 if(toAccount.getId()>1) {
+                    toAccount = accountService.getOriginAccountById(flowCycleTemplate.getAccountToId());
                     toAccount = handleAccount(ContentValues.ACTION_ADD, flowCycleTemplate.getMoney(), toAccount, action.isExempt());
                     accountService.updateOriginAccount(toAccount);
                 }
@@ -140,23 +149,33 @@ public class FlowService {
         Account lastAccount = accountService.getOriginAccountById(lastFlow.getAccountId() );
         switch (lastAction.getHandle()) {
             case ContentValues.ACTION_ADD:
-                log = log+"金额增加\n";
-                lastAccount = handleAccount(ContentValues.ACTION_SUB, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastAccount.getId()>1) {
+                    log = log + "金额增加\n";
+                    lastAccount = handleAccount(ContentValues.ACTION_SUB, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
             case ContentValues.ACTION_SUB:
-                log = log+"金额减少\n";
-                lastAccount = handleAccount(ContentValues.ACTION_ADD, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastAccount.getId()>1) {
+                    log = log + "金额减少\n";
+                    lastAccount = handleAccount(ContentValues.ACTION_ADD, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
             case ContentValues.ACTION_INNER:
                 log = log+"内部转账\n";
                 Account lastToAccount = accountService.getOriginAccountById(lastFlow.getAccountToId());
-                lastToAccount = handleAccount(ContentValues.ACTION_SUB, lastFlow.getMoney(), lastToAccount, lastAction.isExempt());
-                accountService.updateOriginAccount(lastToAccount);
-                lastAccount = handleAccount(ContentValues.ACTION_ADD, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastToAccount.getId()>1) {
+                    lastToAccount = handleAccount(ContentValues.ACTION_SUB, lastFlow.getMoney(), lastToAccount, lastAction.isExempt());
+                    accountService.updateOriginAccount(lastToAccount);
+                }
+                if(lastAccount.getId()>1) {
+                    lastAccount = handleAccount(ContentValues.ACTION_ADD, lastFlow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
         }
         LogUtils.log_print(log);
-        accountService.updateOriginAccount(lastAccount);
+        if(lastAccount.getId()>1) {
+            accountService.updateOriginAccount(lastAccount);
+        }
         Flow flow = setNewFlow(flowAddRequestDto);
         flow.setId(id);
         BeanUtils.copyProperties(flowAddRequestDto, flow);
@@ -232,20 +251,29 @@ public class FlowService {
         Account lastAccount = accountService.getOriginAccountById(flow.getAccountId() );
         switch (lastAction.getHandle()) {
             case ContentValues.ACTION_ADD:
-                lastAccount = handleAccount(ContentValues.ACTION_SUB, flow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastAccount.getId()>1) {
+                    lastAccount = handleAccount(ContentValues.ACTION_SUB, flow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
             case ContentValues.ACTION_SUB:
-                lastAccount = handleAccount(ContentValues.ACTION_ADD, flow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastAccount.getId()>1) {
+                    lastAccount = handleAccount(ContentValues.ACTION_ADD, flow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
             case ContentValues.ACTION_INNER:
                 Account lastToAccount = accountService.getOriginAccountById(flow.getAccountToId());
-                lastToAccount = handleAccount(ContentValues.ACTION_SUB, flow.getMoney(), lastToAccount, lastAction.isExempt());
-                accountService.updateOriginAccount(lastToAccount);
-                lastAccount = handleAccount(ContentValues.ACTION_ADD, flow.getMoney(), lastAccount, lastAction.isExempt());
+                if(lastToAccount.getId()>1) {
+                    lastToAccount = handleAccount(ContentValues.ACTION_SUB, flow.getMoney(), lastToAccount, lastAction.isExempt());
+                    accountService.updateOriginAccount(lastToAccount);
+                }
+                if(lastAccount.getId()>1) {
+                    lastAccount = handleAccount(ContentValues.ACTION_ADD, flow.getMoney(), lastAccount, lastAction.isExempt());
+                }
                 break;
         }
-
-        accountService.updateOriginAccount(lastAccount);
+        if(lastAccount.getId()>1) {
+            accountService.updateOriginAccount(lastAccount);
+        }
         flowDao.deleteFlowById(id);
     }
 
