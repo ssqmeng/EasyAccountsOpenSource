@@ -291,9 +291,15 @@ export default {
       this.fastPopupShow = false;
       this.fastDialogShow = false;
       showSuccessToast(template.name);
-      this.money = template.money;
-      this.note = template.note;
-      this.chooseAccount = template.account;
+      if(template.money){
+        this.money = template.money;
+      }
+      if(template.note){
+        this.note = template.note;
+      }
+      if(template.account){
+        this.chooseAccount = template.account;
+      }
       if (template.action != null) {
         this.chooseAction = this.setActionStyle(template.action);
         if (this.chooseAction.id != null) {
@@ -301,12 +307,15 @@ export default {
         }
 
         if (template.action.handle.toString() == "2") {
-          this.chooseToAccount = template.accountTo
-          this.chooseToAccount.name = template.accountTo.name
+          if(template.accountTo){
+            this.chooseToAccount = template.accountTo
+            this.chooseToAccount.name = template.accountTo.name
+          }
         }
       }
-
-      this.chooseType = template.type;
+      if(template.type){
+        this.chooseType = template.type;
+      }
       if (template.dateType != null) {
         if (template.dateType.toString() === "0") {
           this.chooseDate = this.formatDate(new Date())

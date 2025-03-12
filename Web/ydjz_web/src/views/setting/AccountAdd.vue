@@ -26,12 +26,25 @@
         required
         placeholder="请输入账号名称"
       />
+      
       <van-field
         v-model="money"
-        type="number"
+        readonly
         label="账户余额"
         required
         placeholder="请输入账户余额"
+        @click="showKeyboard = true"
+      />
+
+      <van-number-keyboard
+        :show="showKeyboard"
+        :value="money"
+        :extra-key="['.','+']"
+        theme="custom"
+        close-button-text="完成"
+        @blur="showKeyboard = false"
+        @input="handleNumberInput"
+        @delete="handleNumberDelete"
       />
 
         <van-field name="radio" v-if="this.$route.query.accountId != null" label="是否生成流水">
@@ -128,7 +141,7 @@
               <template #label>
                 <div>
                   <label style="color: #676767; font-size: 13px; display: block;">{{ flow.aname }}</label>
-                  <label v-if="flow.note && useNote && flow.note.length > 0"
+                  <label v-if="flow.note  && flow.note.length > 0"
                     style="color: #cea643; font-size: 13px; display: block; margin-top: 4px;">{{
       "备注：" + flow.note
     }}</label>
@@ -186,6 +199,10 @@ export default {
       error: false,
       pageNum: 1,
       pageSize: 20,
+      showKeyboard: false,
+      currentInput: '',
+      sum: 0,
+      prevResult: '', // 保存上一次
     };
   },
   mounted() {
@@ -198,6 +215,45 @@ export default {
   },
 
   methods: {
+    handleNumberInput(value) {
+    if (value === '.') {
+      // 处理小数点输入
+      if (!this.currentInput.includes('.')) {
+        this.currentInput = (this.currentInput || '0') + '.';
+        this.money = this.currentInput;
+      }
+    } else if (value === '+') {
+      // 处理加法运算
+      if (this.money && !this.currentInput) {
+        this.prevResult = this.money;
+      }
+      if (this.currentInput) {
+        const current = parseFloat(this.currentInput) || 0;
+        const prev = parseFloat(this.prevResult) || 0;
+        this.prevResult = (prev + current).toFixed(2);
+        this.money = this.prevResult;
+        this.currentInput = '';
+      }
+    } else {
+      // 处理数字输入
+      if (this.currentInput.includes('.') && this.currentInput.split('.')[1]?.length >= 2) {
+        return; // 限制小数位数为2位
+      }
+      this.currentInput = (this.currentInput || '') + value;
+      this.money = this.currentInput;
+    }
+  },
+  
+  handleNumberDelete() {
+    if (this.currentInput) {
+      this.currentInput = this.currentInput.slice(0, -1);
+      this.money = this.currentInput || this.prevResult || '';
+    } else if (this.prevResult) {
+      // 如果当前输入为空且有之前的结果，删除之前的结果
+      this.prevResult = '';
+      this.money = '';
+    }
+  },
     getAccountSingle() {
       this.$http({
         url: "/account/getAccount/" + this.$route.query.accountId,

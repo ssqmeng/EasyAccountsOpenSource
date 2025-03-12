@@ -4,12 +4,6 @@
       @click-left="leftClick"  />
     <van-nav-bar v-else fixed placeholder title="编辑周期" left-arrow @click-left="leftClick"
        />
-
-    <van-cell-group :border="false" inset :style="{ marginTop: '20px' }">
-
-      
-     
-    </van-cell-group>
     <van-cell-group :border="false" inset :style="{ marginTop: '20px' }">
       <van-field input-align="right" v-model="template.name" label="名称" required placeholder="请输入名称" />
       <van-field input-align="right" v-model="template.money" type="number" label="金额" placeholder="请输入金额" />
@@ -32,7 +26,7 @@
       <van-cell title="账单分类" :value="chooseType.tname" is-link @click="onTypeClick" />
 
       <van-cell title="重复周期">
-        <template>
+        <template #right-icon>
           <van-radio-group v-model="cycleTypeStr" direction="horizontal">
             <van-radio name="1">每天</van-radio>
             <van-radio name="2" checked-color="#ee0a24">每月</van-radio>
@@ -49,31 +43,47 @@
         @click="deleteTemplate">删除</van-button>
     </div>
 
-    <van-action-sheet v-if="popupStyle <= 2" v-model="actionShow" :title="popupTitle">
+    <van-action-sheet v-if="popupStyle<=2" v-model:show="actionShow" :title="popupTitle">
       <van-cell-group v-if="popupStyle == 0">
-        <van-cell v-for="action in allActions" :key="action.id" @click="onChooseAction(action)">
+        <van-cell
+            v-for="action in allActions"
+            :key="action.id"
+            @click="onChooseAction(action)">
           <template #title>
             <span class="custom-title">{{ action.hname }}</span>
           </template>
           <template #label>
             <van-tag :type="action.style">{{ action.handleText }}</van-tag>
-            <van-tag v-show="action.exempt" style="margin-left: 10px" color="gray" plain type="action.style">{{
-              action.value }}
-            </van-tag>
+            <van-tag
+                v-show="action.exempt"
+                style="margin-left: 10px"
+                color="gray"
+                plain
+                type="action.style"
+            >{{ action.value }}
+            </van-tag
+            >
           </template>
         </van-cell>
       </van-cell-group>
 
-      <van-cell-group v-if="popupStyle == 1 || popupStyle == 2">
+      <van-cell-group v-if="popupStyle==1||popupStyle==2">
         <van-cell v-for="account in allAccounts" :key="account.id" :title="account.name" :value="account.money"
-          :label="account.note" @click="onChooseAccount(account, popupStyle)" />
+                  :label="account.note" @click="onChooseAccount(account,popupStyle)"/>
       </van-cell-group>
     </van-action-sheet>
-    <van-popup v-model="typeCascaderShow" round position="bottom">
-      <van-cascader v-model="cascaderValue" title="选择账单分类" :options="allTypes" active-color="#1989fa"
-        @close="typeCascaderShow = false" :field-names="cascaderNames" @finish="onChooseCascader" />
+    <van-popup v-model:show="typeCascaderShow" round position="bottom">
+      <van-cascader
+          v-model="cascaderValue"
+          title="选择账单分类"
+          :options="allTypes"
+          active-color="#1989fa"
+          @close="typeCascaderShow = false"
+          :field-names="cascaderNames"
+          @finish="onChooseCascader"
+      />
     </van-popup>
-    <van-calendar v-model="calanderShow" :show-confirm="false" color="#1989fa" :min-date="minDate"
+    <van-calendar v-model:show="calanderShow" :show-confirm="false" color="#1989fa" :min-date="minDate"
           :max-date="maxDate " @confirm="onChooseCalendar"/>
   </div>
 </template>
@@ -193,7 +203,7 @@ export default {
       this.typeCascaderShow = true;
     },
 
-    onChooseCascader({ selectedOptions }) {
+    onChooseCascader({selectedOptions}) {
       this.typeCascaderShow = false;
       this.chooseType.id = this.cascaderValue
       this.chooseType.tname = selectedOptions.map((option) => option.tname).join('/');
