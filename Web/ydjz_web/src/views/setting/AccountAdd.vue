@@ -39,7 +39,7 @@
       <van-number-keyboard
         :show="showKeyboard"
         :value="money"
-        :extra-key="['.','+']"
+        :extra-key="['+','.']"
         theme="custom"
         close-button-text="完成"
         @blur="showKeyboard = false"

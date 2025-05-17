@@ -7,10 +7,21 @@
       <van-field
           input-align="right"
           v-model="money"
-          type="number"
+          readonly
           label="账单金额"
           placeholder="请输入账单金额"
+          @click="showKeyboard = true"
+      />
 
+      <van-number-keyboard
+          v-model="money"
+          :show="showKeyboard"
+          :extra-key="['-', '.']"
+          theme="custom"
+          close-button-text="完成"
+          @blur="showKeyboard = false"
+          @input="handleNumberInput"
+          @delete="handleNumberDelete"
       />
 <!--      @touchstart.native.stop="keyboardShow = true"-->
       <van-cell title="选择收支" is-link @click="onActionClick">
@@ -273,6 +284,8 @@ export default {
 
       minDate: new Date(2023, 0, 1),
       maxDate: new Date(),
+      showKeyboard: false,
+      currentInput: '',
     };
   },
   mounted() {
@@ -287,6 +300,33 @@ export default {
     this.doGetAccounts()
   },
   methods: {
+    handleNumberInput(value) {
+      if (value === '.') {
+        // 处理小数点输入
+        if (!this.currentInput.includes('.')) {
+          this.currentInput = (this.currentInput || '0') + '.';
+          this.money = this.currentInput;
+        }
+      } else if (value === '-') {
+        // 处理负号输入
+        if (!this.currentInput) {
+          this.currentInput = '-';
+          this.money = this.currentInput;
+        }
+      } else {
+        // 处理数字输入
+        if (this.currentInput.includes('.') && this.currentInput.split('.')[1]?.length >= 2) {
+          return; // 限制小数位数为2位
+        }
+        this.currentInput = (this.currentInput || '') + value;
+        this.money = this.currentInput;
+      }
+    },
+
+    handleNumberDelete() {
+      this.currentInput = this.currentInput.slice(0, -1);
+      this.money = this.currentInput;
+    },
     fastChooseClick(template) {
       this.fastPopupShow = false;
       this.fastDialogShow = false;
@@ -315,6 +355,7 @@ export default {
       }
       if(template.type){
         this.chooseType = template.type;
+        this.cascaderValue = template.type.id;
       }
       if (template.dateType != null) {
         if (template.dateType.toString() === "0") {
@@ -439,12 +480,12 @@ export default {
       }
       this.childMoneyItem.forEach(chileMoney => {
         if (chileMoney.money != null) {
-          moneyInt = moneyInt + parseFloat(chileMoney.money)
+          moneyInt = (moneyInt * 100 + parseFloat(chileMoney.money) * 100) / 100;
           this.submitNote = this.submitNote + "\n" + chileMoney.note + "(￥" + chileMoney.money + ")"
         }
       })
       if (this.childMoneyItem.length > 0) {
-        this.submitMoney = moneyInt + ""
+        this.submitMoney = moneyInt.toFixed(2) + ""
       } else {
         this.submitMoney = this.money
       }
@@ -501,7 +542,8 @@ export default {
           note: this.submitNote
         }
       }).then(() => {
-        this.$router.go(-1)
+        //this.$router.go(-1)
+        this.$router.push({path: "/flow"});
       })
     },
 
@@ -536,7 +578,8 @@ export default {
     },
 
     onClickLeft() {
-      this.$router.go(-1);
+      //this.$router.go(-1);
+      this.$router.push({path: "/flow"});
     },
 
     onCalanderClick() {
