@@ -427,6 +427,7 @@ export default {
         note: ""
       }
       this.childMoneyItem.push(childItem)
+      this.chooseDate = this.formatDate(new Date())
       console.log(this.childMoneyItem)
     },
 

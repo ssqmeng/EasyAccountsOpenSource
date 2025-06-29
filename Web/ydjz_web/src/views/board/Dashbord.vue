@@ -368,8 +368,9 @@ export default {
       this.$router.push({ path: "/analysis" });
     },
     toScreen(acid) {
+      window.scrollTo(0, 0); // 
       //this.$router.push({ path: "/screen", query: { acid: acid } });
-      this.$router.push({ path: "/account/add", query: { accountId: acid } });
+      this.$router.push({ path: "/account/add", query: { accountId: acid, key: Date.now()  } });
     },
 
     toFlow(month) {
