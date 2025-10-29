@@ -59,7 +59,7 @@
           autosize
           label="备注"
           type="textarea"
-          maxlength="50"
+          maxlength="500"
           placeholder="请输入备注"
           show-word-limit
           input-align="right"
@@ -126,12 +126,29 @@
       </van-swipe-cell>
     </van-cell-group>
     <!--  追加账单 1.6版本  -->
-    <div style="margin: 16px">
+    
+    <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
+        <van-button @click="doAddNewItemMoney()" type="primary" round size="normal" icon="success"
+          color="linear-gradient(to right, #07c160, #10b981)"
+          style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(7, 193, 96, 0.2);">
+          追加
+        </van-button>
+        <van-button  @click="doSubNewItemMoney()" type="warning" round
+          size="normal" icon="chart-trending-o" 
+          style="width: 40%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);">
+          退款
+        </van-button>
+        <!--
       <van-button @click="doAddNewItemMoney" style="margin-bottom: 5px" round block type="warning" native-type="submit">
-        追加分账单
+        追加
       </van-button>
-
-      <van-button @click="onSubmitBtnClick" round block type="primary"
+      <van-button @click="doSubNewItemMoney" style="margin-bottom: 5px" round block type="warning" native-type="submit">
+        退款
+      </van-button>-->
+    </div>
+    <!--<div style="margin: 16px">-->
+    <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
+      <van-button @click="onSubmitBtnClick" round block type="primary"  icon="paid" style="width: 90%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);"
       >{{ this.$route.query.flowId != null ? "修改" : "提交" }}
       </van-button>
     </div>
@@ -425,6 +442,16 @@ export default {
       var childItem = {
         index: Date.now(),
         note: ""
+      }
+      this.childMoneyItem.push(childItem)
+      this.chooseDate = this.formatDate(new Date())
+      console.log(this.childMoneyItem)
+    },
+    doSubNewItemMoney() {
+      var childItem = {
+        index: Date.now(),
+        note: "退款",
+        money: "-"
       }
       this.childMoneyItem.push(childItem)
       this.chooseDate = this.formatDate(new Date())
