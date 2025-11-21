@@ -4,6 +4,25 @@
                  right-text="快记模板" @click-right="fastPopupShow = true"/>
     <van-nav-bar v-else title="修改账单" left-arrow @click-left="onClickLeft"/>
     <van-cell-group>
+      
+<!--      @touchstart.native.stop="keyboardShow = true"-->
+      <!-- 简化版的收支选择 -->
+      <div class="action-selector">
+        <div 
+          v-for="action in allActions" 
+          :key="action.id" 
+          class="action-button"
+          :class="{ 
+            'selected': chooseAction.id === action.id,
+            'income': action.handle === 0,
+            'expense': action.handle === 1,
+            'transfer': action.handle === 2
+          }"
+          @click="onChooseAction(action)"
+        >
+          {{ action.hname }}
+        </div>
+      </div>
       <van-field
           input-align="right"
           v-model="money"
@@ -23,20 +42,6 @@
           @input="handleNumberInput"
           @delete="handleNumberDelete"
       />
-<!--      @touchstart.native.stop="keyboardShow = true"-->
-      <van-cell title="选择收支" is-link @click="onActionClick">
-        <template #default>
-          <van-tag :type="chooseAction.style">{{ chooseAction.hname }}</van-tag>
-          <van-tag
-              v-show="chooseAction.exempt"
-              style="margin-left: 10px"
-              color="gray"
-              plain
-              type="action.style"
-          >{{ chooseAction.value }}
-          </van-tag>
-        </template>
-      </van-cell>
       <van-cell :title=" chooseAction.handle==2?'选择源账户':'选择账户'" is-link @click="onAccountClick(1)"
                 :value="chooseAccount.name"/>
 
@@ -630,12 +635,6 @@ export default {
       this.popupStyle = popupStyle;
     },
 
-    onActionClick() {
-      this.actionShow = true;
-      this.popupTitle = "选择账单收支";
-      this.popupStyle = 0;
-    },
-
     doGetActions() {
       this.$http({
         url: "/action/getAction",
@@ -693,7 +692,6 @@ export default {
 
     onChooseAction(action) {
       this.setActionStyle(action);
-      this.actionShow = false;
       if (action === this.chooseAction) {
         return
       }
@@ -777,6 +775,54 @@ export default {
 
 .template-action {
   text-align: right; /* 右侧对齐详情按钮 */
+}
+
+/* 收支选择按钮样式 */
+.action-selector {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+  gap: 12px;
+  background-color: #f7f8fa;
+}
+
+.action-button {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 20px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #f0f0f0;
+  color: #999;
+  border: 1px solid transparent;
+}
+
+/* 收入（绿色） */
+.action-button.income.selected {
+  background: linear-gradient(135deg, #07c160 0%, #00b894 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(7, 193, 96, 0.3);
+}
+
+/* 支出（红色） */
+.action-button.expense.selected {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(238, 90, 82, 0.3);
+}
+
+/* 转账（蓝色） */
+.action-button.transfer.selected {
+  background: linear-gradient(135deg, #1989fa 0%, #0f7ae5 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(25, 137, 250, 0.3);
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
 }
 
 </style>
