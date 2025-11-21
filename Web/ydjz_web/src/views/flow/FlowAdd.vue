@@ -125,6 +125,13 @@
         </template>
       </van-swipe-cell>
     </van-cell-group>
+
+    <!--<div style="margin: 16px">-->
+    <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
+      <van-button @click="onSubmitBtnClick" round block type="primary"  icon="paid" style="width: 90%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);"
+      >{{ this.$route.query.flowId != null ? "修改" : "提交" }}
+      </van-button>
+    </div>
     <!--  追加账单 1.6版本  -->
     
     <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
@@ -146,12 +153,7 @@
         退款
       </van-button>-->
     </div>
-    <!--<div style="margin: 16px">-->
-    <div style="display: flex; justify-content: space-around; margin: 20px; gap: 15px;">
-      <van-button @click="onSubmitBtnClick" round block type="primary"  icon="paid" style="width: 90%; padding: 10px; box-shadow: 0 2px 4px rgba(25, 137, 250, 0.2);"
-      >{{ this.$route.query.flowId != null ? "修改" : "提交" }}
-      </van-button>
-    </div>
+    
 
     <!--  快记模板 2.1版本  -->
     <van-popup
