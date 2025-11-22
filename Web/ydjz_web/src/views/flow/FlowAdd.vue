@@ -24,11 +24,22 @@
         </div>
       </div>
      
+      <!-- 账单金额 -->
+        <div class="bill-info-wrapper amount-wrapper" @click="showKeyboard = true">
+          <!-- <div class="bill-info-label">账单金额</div> -->
+          <div class="bill-info-value amount-value center-align" :class="getAmountClass()">
+            <span class="currency-symbol">¥</span>
+            <span v-if="money">{{ money }}</span>
+            <span v-else >0.00</span>
+          </div>
+        </div>
+
       <!-- 账户和分类选择区域 -->
       <van-cell-group inset style="margin-top: 6px;">
         <!-- 付款账户选择 -->
         <div class="account-wrapper">
-          <div class="account-label">付款账户</div>
+          <div v-if="chooseAction.handle!=2" class="account-label">账户</div>
+          <div v-if="chooseAction.handle==2" class="account-label">付款账户</div>
           <div class="account-selector">
             <div 
               v-for="account in orderedAccounts.slice(0, 3)" 
@@ -50,7 +61,7 @@
 
         <!-- 目标账户选择 -->
         <div v-show="chooseAction.handle==2" class="account-wrapper to-account-wrapper">
-          <div class="account-label">目标账户</div>
+          <div class="account-label">收款账户</div>
           <div class="account-selector to-account-selector">
             <div 
               v-for="account in orderedToAccounts.slice(0, 3)" 
@@ -105,18 +116,11 @@
           </div>
         </div>
 
-        <!-- 账单金额 -->
-        <div class="bill-info-wrapper" @click="showKeyboard = true">
-          <div class="bill-info-label">账单金额</div>
-          <div class="bill-info-value">
-            <span v-if="money">{{ money }}</span>
-            <span v-else class="placeholder">请输入账单金额</span>
-          </div>
-        </div>
+        
 
         <!-- 账单日期 -->
         <div class="bill-info-wrapper" @click="onCalanderClick">
-          <div class="bill-info-label">账单日期</div>
+          <div class="bill-info-label">日期</div>
           <div class="bill-info-value">
             {{ chooseDate }}
           </div>
@@ -492,6 +496,25 @@ export default {
     }
   },
   methods: {
+    // 根据收支类型获取金额显示的CSS类
+    getAmountClass() {
+      // 确保chooseAction和handle存在
+      if (!this.chooseAction || this.chooseAction.handle === undefined || this.chooseAction.handle === null) {
+        return 'expense'; // 默认显示为支出样式
+      }
+      
+      
+      // 严格比较handle值
+      if (this.chooseAction.handle === 0) {
+        return 'income'; // 收入 - 绿色
+      } else if (this.chooseAction.handle === 1) {
+        return 'expense'; // 支出 - 红色
+      } else if (this.chooseAction.handle === 2) {
+        return 'transfer'; // 转账 - 蓝色
+      } else {
+        return 'expense'; // 默认
+      }
+    },
     // 自适应文本框高度
     resizeTextarea() {
       const textarea = this.$refs.noteTextarea;
@@ -591,11 +614,7 @@ export default {
       }
 
     },
-    fastDialogClick(template) {
-      this.chooseTemplate = template;
-      this.fastDialogShow = true;
-      // 阻止冒泡可以放在这里或直接在模板中使用 .stop 修饰符
-    },
+
     fastDialogToEdit(id) {
       this.fastDialogShow = false;
       this.$router.push({path: "/template/add", query: {templateId: id}});
@@ -611,9 +630,7 @@ export default {
       }).then((response) => {
         this.allTags = response.data.data;
         this.getAllTemplate()
-        console.log(this.allTags);
-      }).catch((error) => {
-        console.log(error);
+      }).catch(() => {
       });
     },
 
@@ -633,14 +650,11 @@ export default {
             template.dateTypeStr = "";
           }
         });
-        console.log(this.allTemplates);
-      }).catch((error) => {
-        console.log(error);
+      }).catch(() => {
       });
     },
 
     doRemoveMoneyItem(item) {
-      console.log(item)
       this.childMoneyItem.splice(this.childMoneyItem.indexOf(item), 1)
     },
     doAddNewItemMoney() {
@@ -650,7 +664,6 @@ export default {
       }
       this.childMoneyItem.push(childItem)
       this.chooseDate = this.formatDate(new Date())
-      console.log(this.childMoneyItem)
       
       // 添加新项后调整文本框高度
       this.$nextTick(() => {
@@ -665,79 +678,78 @@ export default {
       }
       this.childMoneyItem.push(childItem)
       this.chooseDate = this.formatDate(new Date())
-      console.log(this.childMoneyItem)
+
     },
 
     doGetCurrentFlow() {
-      console.log('FlowAdd - doGetCurrentFlow 开始执行，flowId:', this.$route.query.flowId);
+
       this.$http({
         url: "/flow/getFlow/" + this.$route.query.flowId,
         method: "get"
       }).then(response => {
         const flow = response.data.data;
-        console.log('FlowAdd - 加载账单数据:', flow);
-        console.log('FlowAdd - 账单分类信息:', flow.type);
+
+
         this.money = flow.money;
         this.chooseAccount = flow.account;
         this.chooseAccount.name = flow.account.aname;
         
         // 确保所有actions已加载后再设置chooseAction
-        console.log('FlowAdd - 设置chooseAction前，allActions状态:', this.allActions && this.allActions.length > 0 ? '已加载' : '未加载');
+
         
         if (this.allActions && this.allActions.length > 0) {
           // 从已加载的actions中找到匹配的action
-          console.log('FlowAdd - 从已加载的actions中查找匹配项，flow.action.id:', flow.action.id);
+
           const matchedAction = this.allActions.find(action => action.id === flow.action.id);
           
           if (matchedAction) {
-            console.log('FlowAdd - 找到匹配的action:', matchedAction);
+
             this.chooseAction = this.setActionStyle(matchedAction);
           } else {
-            console.log('FlowAdd - 未找到匹配的action，使用flow中的action:', flow.action);
+
             this.chooseAction = this.setActionStyle(flow.action);
           }
         } else {
           // 如果actions还未加载，直接使用flow中的action
-          console.log('FlowAdd - actions未加载，直接使用flow中的action:', flow.action);
+
           this.chooseAction = this.setActionStyle(flow.action);
         }
         
-        console.log('FlowAdd - chooseAction设置完成:', this.chooseAction);
-        console.log('FlowAdd - 即将调用doGetTypes()，chooseAction.id:', this.chooseAction.id);
+
+
         
         // 先加载分类列表，然后设置 chooseType
         this.doGetTypes().then(() => {
-          console.log('FlowAdd - doGetTypes 完成，allTypes数据:', this.allTypes);
+
             
           this.selectedParentType = null;
           this.fatherType = null;
           this.chooseType = {};
           
           if (flow.type && flow.type.tname) {
-            console.log('FlowAdd - 开始处理账单分类，flow.type:', flow.type);
+
             const parentId = flow.type.parent;
             const currentTypeId = flow.type.id;
-            console.log('FlowAdd - 分类父ID:', parentId);
-            console.log('FlowAdd - 当前分类ID:', currentTypeId);
+
+
             
             // 统一处理所有类型的分类选择
             if (parentId !== -1) {
               // 有父分类和子分类结构
-              console.log('FlowAdd - 子类模式，通过parentId查找父分类');
+
               
               // 首先在父分类列表中查找对应的父分类
               let parentType = this.allTypes.find(t => t.id === parentId);
-              console.log('FlowAdd - 直接通过ID找到父分类:', parentType);
+
               
               // 如果直接通过ID找不到，遍历所有父分类的子分类来查找
               if (!parentType) {
-                console.log('FlowAdd - 通过ID未找到父分类，尝试遍历查找');
                 for (const type of this.allTypes) {
                   if (type.childrenTypes) {
                     const foundChild = type.childrenTypes.find(c => c.id === currentTypeId);
                     if (foundChild) {
                       parentType = type;
-                      console.log('FlowAdd - 通过子分类遍历找到父分类:', parentType);
+  
                       break;
                     }
                   }
@@ -745,26 +757,21 @@ export default {
               }
               
               if (parentType) {
-                console.log('FlowAdd - 查找子分类，当前分类ID:', currentTypeId);
                 // 查找对应的子分类
                 const childType = parentType.childrenTypes.find(c => c.id === currentTypeId);
-                console.log('FlowAdd - 找到子分类:', childType);
+
                 
                 if (childType) {
-                  console.log('FlowAdd - 找到完整分类路径，开始设置状态');
                   // 分步骤设置状态，确保UI能正确更新
                   // 1. 先设置父分类
                   this.selectedParentType = parentType;
                   this.fatherType = parentType;
                   
-                  console.log('FlowAdd - 设置父分类后:', {
-                    selectedParentType: this.selectedParentType,
-                    fatherType: this.fatherType
-                  });
+
                   
                   // 2. 在下一个tick中设置子分类，确保父分类已经渲染完成
                   this.$nextTick(() => {
-                    console.log('FlowAdd - 在nextTick中设置子分类:', childType);
+      
                     // 构造完整的子分类对象
                     this.chooseType = {
                       ...childType,
@@ -773,26 +780,25 @@ export default {
                       displayName: flow.type.tname
                     };
                     
-                    console.log('FlowAdd - 子分类设置完成:', this.chooseType);
+
                     // 强制更新以确保高亮生效
                     this.$forceUpdate();
-                    console.log('FlowAdd - 强制UI更新完成');
+
                   });
                   return; // 提前返回，避免后续代码执行
                 }
               }
             } else {
               // 只有父分类
-              console.log('FlowAdd - 只有父分类，通过ID查找:', flow.type.id);
+
               // 优先通过ID查找
               let matchedType = this.allTypes.find(t => t.id === flow.type.id);
-              console.log('FlowAdd - 通过ID找到父分类:', matchedType);
+
               
               // 如果通过ID没找到，再尝试通过tname查找
               if (!matchedType) {
-                console.log('FlowAdd - 通过ID未找到，尝试通过tname查找:', flow.type.tname);
                 matchedType = this.allTypes.find(t => t.tname === flow.type.tname);
-                console.log('FlowAdd - 通过tname找到父分类:', matchedType);
+
               }
               
               if (matchedType) {
@@ -800,17 +806,11 @@ export default {
                 this.selectedParentType = matchedType;
                 this.fatherType = matchedType;
                 
-                console.log('FlowAdd - 设置父分类后:', {
-                  selectedParentType: this.selectedParentType,
-                  fatherType: this.fatherType
-                });
-                
                 this.$nextTick(() => {
-                  console.log('FlowAdd - 在nextTick中设置chooseType为父分类:', matchedType);
                   this.chooseType = matchedType;
-                  console.log('FlowAdd - chooseType设置完成:', this.chooseType);
+
                   this.$forceUpdate();
-                  console.log('FlowAdd - 强制UI更新完成');
+
                 });
                 return; // 提前返回，避免后续代码执行
               }
@@ -818,52 +818,39 @@ export default {
           }
           
           // 如果分类设置未成功完成或没有分类信息，则使用备选方案
-          console.log('FlowAdd - 进入备选方案逻辑');
           
           // 方案1：如果有flow.type但未在allTypes中找到匹配项，尝试直接使用
           if (flow.type && flow.type.tname) {
-            console.log('FlowAdd - 使用备选方案1：直接使用flow.type');
+
             this.$nextTick(() => {
-              console.log('FlowAdd - 设置直接使用flow.type:', flow.type);
+  
               this.chooseType = flow.type;
               this.fatherType = flow.type;
               this.selectedParentType = flow.type;
-              console.log('FlowAdd - 备选方案1设置完成:', {
-                chooseType: this.chooseType,
-                fatherType: this.fatherType,
-                selectedParentType: this.selectedParentType
-              });
+
               this.$forceUpdate();
-              console.log('FlowAdd - 备选方案1强制UI更新完成');
+
             });
           } 
           // 方案2：使用默认选择
           else if (this.allTypes && this.allTypes.length > 0) {
-            console.log('FlowAdd - 使用备选方案2：选择第一个分类');
             const firstType = this.allTypes[0];
-            console.log('FlowAdd - 选择第一个分类:', firstType);
+
             // 直接调用已有的选择方法，这样可以确保所有相关状态都被正确设置
             this.onSelectParentType(firstType);
-            console.log('FlowAdd - 备选方案2选择方法调用完成');
+
           }
           
           // 确保UI更新
           this.$nextTick(() => {
-            console.log('FlowAdd - 最终强制UI更新');
             this.$forceUpdate();
-            console.log('FlowAdd - 最终强制UI更新完成');
+
           });
           
           // 延迟再次更新，确保所有异步操作完成
           setTimeout(() => {
-            console.log('FlowAdd - 延迟后最终状态检查:', {
-              chooseType: this.chooseType,
-              fatherType: this.fatherType,
-              selectedParentType: this.selectedParentType,
-              allTypes: this.allTypes && this.allTypes.length > 0 ? this.allTypes.length + '个分类' : '无分类'
-            });
             this.$forceUpdate();
-            console.log('FlowAdd - 延迟强制UI更新完成');
+
           }, 500);
         });
         
@@ -1014,20 +1001,7 @@ export default {
       this.calanderShow = true;
     },
 
-    onTypeClick() {
-      if (this.chooseAction.id == null) {
-        showFailToast("请先选择收支")
-        return;
-      }
-      // 清空分类选择
-      this.selectedParentType = null;
-      this.chooseType = {};
-    },
 
-    onChooseType(type) {
-      this.chooseType = type;
-      console.log('选择分类:', type);
-    },
 
     onAccountClick(popupStyle) {
       this.actionShow = true;
@@ -1044,7 +1018,7 @@ export default {
         this.allActions.forEach((action) => {
           this.setActionStyle(action)
         });
-        console.log(this.allActions);
+
       });
     },
 
@@ -1069,10 +1043,9 @@ export default {
               }
             }
             
-            console.log(this.allAccounts);
+
           })
-          .catch((error) => {
-            console.log(error);
+          .catch(() => {
           });
     },
     
@@ -1132,7 +1105,7 @@ export default {
       })
           .then((response) => {
             this.allTypes = response.data.data;
-            console.log(this.allTypes)
+
           })
     },
 
@@ -1144,7 +1117,7 @@ export default {
           .then((response) => {
             //this.chooseAction = response.data.data;
             this.onChooseAction(response.data.data)
-            console.log(this.allTypes)
+
           })
     },
 
@@ -1158,28 +1131,28 @@ export default {
       this.chooseType = {}
       this.selectedParentType = null; // 重置选中的大类
       this.doGetTypes().then(() => {
-        console.log('FlowAdd - doGetTypes完成，开始选择默认分类');
+
         // 默认选择第一个大类及对应第一个小类
         this.$nextTick(() => {
-          console.log('FlowAdd - 第一级nextTick，allTypes数量:', this.allTypes ? this.allTypes.length : 0);
+
           if (this.allTypes && this.allTypes.length > 0) {
             const firstType = this.allTypes[0];
-            console.log('FlowAdd - 选择第一个分类:', firstType);
+
             this.onSelectParentType(firstType);
           }
           
           // 增强UI更新机制
           this.$nextTick(() => {
-            console.log('FlowAdd - 动作选择后第二级UI更新');
+            
             this.$forceUpdate();
             
             this.$nextTick(() => {
-              console.log('FlowAdd - 动作选择后第三级UI更新');
+              
               this.$forceUpdate();
               
               // 延迟再次更新，确保所有异步操作完成
               setTimeout(() => {
-                console.log('FlowAdd - 动作选择后延迟更新');
+
                 this.$forceUpdate();
               }, 300);
             });
@@ -1204,7 +1177,7 @@ export default {
     onChooseCalendar(date) {
       this.calanderShow = false;
       this.chooseDate = this.formatDate(date);
-      console.log(this.chooseDate)
+
     },
 
     // 判断分类是否选中（统一处理所有类型）
@@ -1238,7 +1211,6 @@ export default {
 
     // 处理支出大类选择
     onSelectParentType(type) {
-      console.log('选择支出大类:', type);
       // 设置选中的大类
       this.selectedParentType = type;
       this.fatherType = type; // 设置fatherType
@@ -1260,16 +1232,13 @@ export default {
       
       // 增强UI更新机制：使用多级nextTick确保DOM完全更新
       this.$nextTick(() => {
-        console.log('FlowAdd - 父分类选择后第一级UI更新');
         this.$forceUpdate();
         
         this.$nextTick(() => {
-          console.log('FlowAdd - 父分类选择后第二级UI更新');
           this.$forceUpdate();
           
           // 延迟再次更新，确保所有异步操作完成
           setTimeout(() => {
-            console.log('FlowAdd - 父分类选择后延迟更新');
             this.$forceUpdate();
           }, 200);
         });
@@ -1292,11 +1261,9 @@ export default {
       
       // 增强UI更新机制：使用多级nextTick确保DOM完全更新
       this.$nextTick(() => {
-        console.log('FlowAdd - 子分类选择后第一级UI更新');
         this.$forceUpdate();
         
         this.$nextTick(() => {
-          console.log('FlowAdd - 子分类选择后第二级UI更新');
           this.$forceUpdate();
         });
       });
@@ -1605,6 +1572,52 @@ export default {
   align-items: center;
   height: auto;
   min-height: auto;
+}
+
+/* 金额显示优化样式 */
+.amount-wrapper {
+  background-color: #fff;
+  margin: 8px -15px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: none;
+  min-height: 30px;
+  justify-content: center;
+}
+
+.amount-wrapper .bill-info-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.amount-value {
+  font-size: 32px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.center-align {
+  justify-content: center !important;
+  text-align: center;
+}
+
+.amount-value.income {
+  color: #07c160;
+}
+
+.amount-value.expense {
+  color: #f56c6c;
+}
+
+.amount-value.transfer {
+  color: #1989fa;
+}
+
+.currency-symbol {
+  font-size: 20px;
+  margin-right: 4px;
+  opacity: 0.8;
 }
 
 .bill-info-value .placeholder {
